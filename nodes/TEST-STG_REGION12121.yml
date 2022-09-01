@@ -1,0 +1,80 @@
+steps:
+  STG_REGION12121-21221:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ''
+        preSQL: ''
+        testsEnabled: true
+        truncateBefore: true
+      database: ''
+      dependencies: []
+      description: ''
+      isDataVault: false
+      isMultisource: false
+      locationID: 25
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 21790
+              stepCounter: 21221
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: R_REGIONKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17886
+                    stepCounter: 20709
+                transform: ''
+          - columnReference:
+              columnCounter: 21791
+              stepCounter: 21221
+            dataType: VARCHAR(25)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: R_NAME
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17887
+                    stepCounter: 20709
+                transform: ''
+          - columnReference:
+              columnCounter: 21792
+              stepCounter: 21221
+            dataType: VARCHAR(152)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: R_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17888
+                    stepCounter: 20709
+                transform: ''
+        cteString: ''
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ''
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_REGION1212
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_REGION1212') }} "STG_REGION1212"
+            name: STG_REGION12121
+            noLinkRefs: []
+      name: STG_REGION12121
+      overrideSQL: false
+      schema: ''
+      sqlType: Stage
+      type: sql
+    stepCounter: '21221'

@@ -1,0 +1,136 @@
+steps:
+  STG_SUPPLIER3211-21278:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ''
+        preSQL: ''
+        testsEnabled: true
+        truncateBefore: true
+      database: ''
+      dependencies: []
+      description: ''
+      isDataVault: false
+      isMultisource: false
+      locationID: 25
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 22220
+              stepCounter: 21278
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: S_SUPPKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18316
+                    stepCounter: 20766
+                transform: ''
+          - columnReference:
+              columnCounter: 22221
+              stepCounter: 21278
+            dataType: VARCHAR(25)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: S_NAME
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18317
+                    stepCounter: 20766
+                transform: ''
+          - columnReference:
+              columnCounter: 22222
+              stepCounter: 21278
+            dataType: VARCHAR(40)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: S_ADDRESS
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18318
+                    stepCounter: 20766
+                transform: ''
+          - columnReference:
+              columnCounter: 22223
+              stepCounter: 21278
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: S_NATIONKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18319
+                    stepCounter: 20766
+                transform: ''
+          - columnReference:
+              columnCounter: 22224
+              stepCounter: 21278
+            dataType: VARCHAR(15)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: S_PHONE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18320
+                    stepCounter: 20766
+                transform: ''
+          - columnReference:
+              columnCounter: 22225
+              stepCounter: 21278
+            dataType: NUMBER(12,2)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: S_ACCTBAL
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18321
+                    stepCounter: 20766
+                transform: ''
+          - columnReference:
+              columnCounter: 22226
+              stepCounter: 21278
+            dataType: VARCHAR(101)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: S_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18322
+                    stepCounter: 20766
+                transform: ''
+        cteString: ''
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ''
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_SUPPLIER321
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_SUPPLIER321') }} "STG_SUPPLIER321"
+            name: STG_SUPPLIER3211
+            noLinkRefs: []
+      name: STG_SUPPLIER3211
+      overrideSQL: false
+      schema: ''
+      sqlType: Stage
+      type: sql
+    stepCounter: '21278'

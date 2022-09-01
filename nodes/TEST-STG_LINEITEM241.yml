@@ -1,0 +1,262 @@
+steps:
+  STG_LINEITEM241-21128:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ''
+        preSQL: ''
+        testsEnabled: true
+        truncateBefore: true
+      database: ''
+      dependencies: []
+      description: ''
+      isDataVault: false
+      isMultisource: false
+      locationID: 25
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 21076
+              stepCounter: 21128
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_ORDERKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17172
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21077
+              stepCounter: 21128
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_PARTKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17173
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21078
+              stepCounter: 21128
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_SUPPKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17174
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21079
+              stepCounter: 21128
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_LINENUMBER
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17175
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21080
+              stepCounter: 21128
+            dataType: NUMBER(12,2)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_QUANTITY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17176
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21081
+              stepCounter: 21128
+            dataType: NUMBER(12,2)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_EXTENDEDPRICE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17177
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21082
+              stepCounter: 21128
+            dataType: NUMBER(12,2)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_DISCOUNT
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17178
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21083
+              stepCounter: 21128
+            dataType: NUMBER(12,2)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_TAX
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17179
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21084
+              stepCounter: 21128
+            dataType: VARCHAR(1)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_RETURNFLAG
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17180
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21085
+              stepCounter: 21128
+            dataType: VARCHAR(1)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_LINESTATUS
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17181
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21086
+              stepCounter: 21128
+            dataType: DATE
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_SHIPDATE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17182
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21087
+              stepCounter: 21128
+            dataType: DATE
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_COMMITDATE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17183
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21088
+              stepCounter: 21128
+            dataType: DATE
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_RECEIPTDATE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17184
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21089
+              stepCounter: 21128
+            dataType: VARCHAR(25)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_SHIPINSTRUCT
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17185
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21090
+              stepCounter: 21128
+            dataType: VARCHAR(10)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_SHIPMODE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17186
+                    stepCounter: 20616
+                transform: ''
+          - columnReference:
+              columnCounter: 21091
+              stepCounter: 21128
+            dataType: VARCHAR(44)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: L_COMMENT
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 17187
+                    stepCounter: 20616
+                transform: ''
+        cteString: ''
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ''
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_LINEITEM24
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_LINEITEM24') }} "STG_LINEITEM24"
+            name: STG_LINEITEM241
+            noLinkRefs: []
+      name: STG_LINEITEM241
+      overrideSQL: false
+      schema: ''
+      sqlType: Stage
+      type: sql
+    stepCounter: '21128'

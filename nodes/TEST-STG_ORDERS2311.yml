@@ -1,0 +1,164 @@
+steps:
+  STG_ORDERS2311-21258:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ''
+        preSQL: ''
+        testsEnabled: true
+        truncateBefore: true
+      database: ''
+      dependencies: []
+      description: ''
+      isDataVault: false
+      isMultisource: false
+      locationID: 25
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 22072
+              stepCounter: 21258
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: O_ORDERKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18168
+                    stepCounter: 20746
+                transform: ''
+          - columnReference:
+              columnCounter: 22073
+              stepCounter: 21258
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: O_CUSTKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18169
+                    stepCounter: 20746
+                transform: ''
+          - columnReference:
+              columnCounter: 22074
+              stepCounter: 21258
+            dataType: VARCHAR(1)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: O_ORDERSTATUS
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18170
+                    stepCounter: 20746
+                transform: ''
+          - columnReference:
+              columnCounter: 22075
+              stepCounter: 21258
+            dataType: NUMBER(12,2)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: O_TOTALPRICE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18171
+                    stepCounter: 20746
+                transform: ''
+          - columnReference:
+              columnCounter: 22076
+              stepCounter: 21258
+            dataType: DATE
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: O_ORDERDATE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18172
+                    stepCounter: 20746
+                transform: ''
+          - columnReference:
+              columnCounter: 22077
+              stepCounter: 21258
+            dataType: VARCHAR(15)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: O_ORDERPRIORITY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18173
+                    stepCounter: 20746
+                transform: ''
+          - columnReference:
+              columnCounter: 22078
+              stepCounter: 21258
+            dataType: VARCHAR(15)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: O_CLERK
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18174
+                    stepCounter: 20746
+                transform: ''
+          - columnReference:
+              columnCounter: 22079
+              stepCounter: 21258
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: O_SHIPPRIORITY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18175
+                    stepCounter: 20746
+                transform: ''
+          - columnReference:
+              columnCounter: 22080
+              stepCounter: 21258
+            dataType: VARCHAR(79)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: O_COMMENT
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 18176
+                    stepCounter: 20746
+                transform: ''
+        cteString: ''
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ''
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_ORDERS231
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_ORDERS231') }} "STG_ORDERS231"
+            name: STG_ORDERS2311
+            noLinkRefs: []
+      name: STG_ORDERS2311
+      overrideSQL: false
+      schema: ''
+      sqlType: Stage
+      type: sql
+    stepCounter: '21258'

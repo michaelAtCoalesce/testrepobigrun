@@ -1,0 +1,108 @@
+steps:
+  STG_PARTSUPP313-20956:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ''
+        preSQL: ''
+        testsEnabled: true
+        truncateBefore: true
+      database: ''
+      dependencies: []
+      description: ''
+      isDataVault: false
+      isMultisource: false
+      locationID: 25
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 19772
+              stepCounter: 20956
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: PS_PARTKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 15868
+                    stepCounter: 20444
+                transform: ''
+          - columnReference:
+              columnCounter: 19773
+              stepCounter: 20956
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: PS_SUPPKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 15869
+                    stepCounter: 20444
+                transform: ''
+          - columnReference:
+              columnCounter: 19774
+              stepCounter: 20956
+            dataType: NUMBER(38,0)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: PS_AVAILQTY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 15870
+                    stepCounter: 20444
+                transform: ''
+          - columnReference:
+              columnCounter: 19775
+              stepCounter: 20956
+            dataType: NUMBER(12,2)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: PS_SUPPLYCOST
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 15871
+                    stepCounter: 20444
+                transform: ''
+          - columnReference:
+              columnCounter: 19776
+              stepCounter: 20956
+            dataType: VARCHAR(199)
+            description: ''
+            hashColumns: []
+            hashDetails: null
+            name: PS_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 15872
+                    stepCounter: 20444
+                transform: ''
+        cteString: ''
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ''
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_PARTSUPP31
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_PARTSUPP31') }} "STG_PARTSUPP31"
+            name: STG_PARTSUPP313
+            noLinkRefs: []
+      name: STG_PARTSUPP313
+      overrideSQL: false
+      schema: ''
+      sqlType: Stage
+      type: sql
+    stepCounter: '20956'
