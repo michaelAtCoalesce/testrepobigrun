@@ -4,36 +4,36 @@ steps:
       config:
         insertStrategy: UNION
         selectDistinct: false
-      database: ''
+      database: ""
       dependencies: []
-      description: ''
+      description: ""
       isDataVault: false
       isMultisource: false
-      locationID: ''
+      locationID: ""
       locationName: TEST
       materializationType: view
       metadata:
         appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: '31070'
-              stepCounter: '22434'
+              columnCounter: "31070"
+              stepCounter: "22434"
             dataType: NUMBER(38,0)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: C_CUSTKEY
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: '23051'
-                    stepCounter: '21385'
-                transform: ''
+                  - columnCounter: "23051"
+                    stepCounter: "21385"
+                transform: ""
           - columnReference:
               columnCounter: 31071
-              stepCounter: '22434'
+              stepCounter: "22434"
             dataType: VARCHAR(25)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: C_NAME
@@ -41,13 +41,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 23052
-                    stepCounter: '21385'
-                transform: ''
+                    stepCounter: "21385"
+                transform: ""
           - columnReference:
               columnCounter: 31072
-              stepCounter: '22434'
+              stepCounter: "22434"
             dataType: VARCHAR(40)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: C_ADDRESS
@@ -55,13 +55,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 23053
-                    stepCounter: '21385'
-                transform: ''
+                    stepCounter: "21385"
+                transform: ""
           - columnReference:
               columnCounter: 31073
-              stepCounter: '22434'
+              stepCounter: "22434"
             dataType: NUMBER(38,0)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: C_NATIONKEY
@@ -69,13 +69,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 23054
-                    stepCounter: '21385'
-                transform: ''
+                    stepCounter: "21385"
+                transform: ""
           - columnReference:
               columnCounter: 31074
-              stepCounter: '22434'
+              stepCounter: "22434"
             dataType: VARCHAR(15)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: C_PHONE
@@ -83,13 +83,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 23055
-                    stepCounter: '21385'
-                transform: ''
+                    stepCounter: "21385"
+                transform: ""
           - columnReference:
               columnCounter: 31075
-              stepCounter: '22434'
+              stepCounter: "22434"
             dataType: NUMBER(12,2)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: C_ACCTBAL
@@ -97,13 +97,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 23056
-                    stepCounter: '21385'
-                transform: ''
+                    stepCounter: "21385"
+                transform: ""
           - columnReference:
               columnCounter: 31076
-              stepCounter: '22434'
+              stepCounter: "22434"
             dataType: VARCHAR(10)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: C_MKTSEGMENT
@@ -111,13 +111,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 23057
-                    stepCounter: '21385'
-                transform: ''
+                    stepCounter: "21385"
+                transform: ""
           - columnReference:
               columnCounter: 31077
-              stepCounter: '22434'
+              stepCounter: "22434"
             dataType: VARCHAR(117)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: C_COMMENT
@@ -125,13 +125,15 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 23058
-                    stepCounter: '21385'
-                transform: ''
-        cteString: ''
+                    stepCounter: "21385"
+                transform: ""
+        cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
-          - customSQL:
-              customSQL: ''
+          - aliases:
+              STG_CUSTOMER72: "21385"
+            customSQL:
+              customSQL: ""
             dependencies:
               - locationName: TEST
                 nodeName: STG_CUSTOMER72
@@ -141,7 +143,7 @@ steps:
             noLinkRefs: []
       name: V_CUSTOMER72
       overrideSQL: false
-      schema: ''
+      schema: ""
       sqlType: View
       type: sql
-    stepCounter: '22434'
+    stepCounter: "22434"

@@ -1,8 +1,8 @@
 steps:
   REGION-20341:
     operation:
-      database: ''
-      dataset: ''
+      database: ""
+      dataset: ""
       locationID: 1
       locationName: SRC
       metadata:
@@ -16,8 +16,8 @@ steps:
               stepCounter: 20341
             config: {}
             dataType: NUMBER(38,0)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: R_REGIONKEY
             nullable: false
             primaryKey: false
@@ -31,8 +31,8 @@ steps:
               stepCounter: 20341
             config: {}
             dataType: VARCHAR(25)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: R_NAME
             nullable: false
             primaryKey: false
@@ -46,8 +46,8 @@ steps:
               stepCounter: 20341
             config: {}
             dataType: VARCHAR(152)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: R_COMMENT
             nullable: true
             primaryKey: false
@@ -55,8 +55,8 @@ steps:
         join:
           joinCondition: FROM {{ ref('SRC', 'REGION') }}
       name: REGION
-      schema: ''
+      schema: ""
       sqlType: Source
       table: REGION
       type: sourceInput
-    stepCounter: '20341'
+    stepCounter: "20341"

@@ -1,8 +1,8 @@
 steps:
   PARTSUPP-20340:
     operation:
-      database: ''
-      dataset: ''
+      database: ""
+      dataset: ""
       locationID: 1
       locationName: SRC
       metadata:
@@ -16,8 +16,8 @@ steps:
               stepCounter: 20340
             config: {}
             dataType: NUMBER(38,0)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: PS_PARTKEY
             nullable: false
             primaryKey: false
@@ -31,8 +31,8 @@ steps:
               stepCounter: 20340
             config: {}
             dataType: NUMBER(38,0)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: PS_SUPPKEY
             nullable: false
             primaryKey: false
@@ -46,8 +46,8 @@ steps:
               stepCounter: 20340
             config: {}
             dataType: NUMBER(38,0)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: PS_AVAILQTY
             nullable: false
             primaryKey: false
@@ -61,8 +61,8 @@ steps:
               stepCounter: 20340
             config: {}
             dataType: NUMBER(12,2)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: PS_SUPPLYCOST
             nullable: false
             primaryKey: false
@@ -76,8 +76,8 @@ steps:
               stepCounter: 20340
             config: {}
             dataType: VARCHAR(199)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: PS_COMMENT
             nullable: true
             primaryKey: false
@@ -85,8 +85,8 @@ steps:
         join:
           joinCondition: FROM {{ ref('SRC', 'PARTSUPP') }}
       name: PARTSUPP
-      schema: ''
+      schema: ""
       sqlType: Source
       table: PARTSUPP
       type: sourceInput
-    stepCounter: '20340'
+    stepCounter: "20340"

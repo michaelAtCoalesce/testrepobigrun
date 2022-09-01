@@ -3,13 +3,13 @@ steps:
     operation:
       config:
         insertStrategy: INSERT
-        postSQL: ''
-        preSQL: ''
+        postSQL: ""
+        preSQL: ""
         testsEnabled: true
         truncateBefore: true
-      database: ''
+      database: ""
       dependencies: []
-      description: ''
+      description: ""
       isDataVault: false
       isMultisource: false
       locationID: 25
@@ -22,7 +22,7 @@ steps:
               columnCounter: 22883
               stepCounter: 21364
             dataType: NUMBER(38,0)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: PS_PARTKEY
@@ -30,13 +30,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 18979
-                    stepCounter: 20852
-                transform: ''
+                    stepCounter: "20852"
+                transform: ""
           - columnReference:
               columnCounter: 22884
               stepCounter: 21364
             dataType: NUMBER(38,0)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: PS_SUPPKEY
@@ -44,13 +44,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 18980
-                    stepCounter: 20852
-                transform: ''
+                    stepCounter: "20852"
+                transform: ""
           - columnReference:
               columnCounter: 22885
               stepCounter: 21364
             dataType: NUMBER(38,0)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: PS_AVAILQTY
@@ -58,13 +58,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 18981
-                    stepCounter: 20852
-                transform: ''
+                    stepCounter: "20852"
+                transform: ""
           - columnReference:
               columnCounter: 22886
               stepCounter: 21364
             dataType: NUMBER(12,2)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: PS_SUPPLYCOST
@@ -72,13 +72,13 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 18982
-                    stepCounter: 20852
-                transform: ''
+                    stepCounter: "20852"
+                transform: ""
           - columnReference:
               columnCounter: 22887
               stepCounter: 21364
             dataType: VARCHAR(199)
-            description: ''
+            description: ""
             hashColumns: []
             hashDetails: null
             name: PS_COMMENT
@@ -86,25 +86,23 @@ steps:
             sourceColumnReferences:
               - columnReferences:
                   - columnCounter: 18983
-                    stepCounter: 20852
-                transform: ''
-        cteString: ''
+                    stepCounter: "20852"
+                transform: ""
+        cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
           - customSQL:
-              customSQL: ''
+              customSQL: ""
             dependencies:
               - locationName: TEST
                 nodeName: STG_PARTSUPP111111
             join:
-              joinCondition: >-
-                FROM {{ ref('TEST', 'STG_PARTSUPP111111') }}
-                "STG_PARTSUPP111111"
+              joinCondition: FROM {{ ref('TEST', 'STG_PARTSUPP111111') }} "STG_PARTSUPP111111"
             name: STG_PARTSUPP1111111
             noLinkRefs: []
       name: STG_PARTSUPP1111111
       overrideSQL: false
-      schema: ''
+      schema: ""
       sqlType: Stage
       type: sql
-    stepCounter: '21364'
+    stepCounter: "21364"

@@ -1,8 +1,8 @@
 steps:
   NATION-20337:
     operation:
-      database: ''
-      dataset: ''
+      database: ""
+      dataset: ""
       locationID: 1
       locationName: SRC
       metadata:
@@ -16,8 +16,8 @@ steps:
               stepCounter: 20337
             config: {}
             dataType: NUMBER(38,0)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: N_NATIONKEY
             nullable: false
             primaryKey: false
@@ -31,8 +31,8 @@ steps:
               stepCounter: 20337
             config: {}
             dataType: VARCHAR(25)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: N_NAME
             nullable: false
             primaryKey: false
@@ -46,8 +46,8 @@ steps:
               stepCounter: 20337
             config: {}
             dataType: NUMBER(38,0)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: N_REGIONKEY
             nullable: false
             primaryKey: false
@@ -61,8 +61,8 @@ steps:
               stepCounter: 20337
             config: {}
             dataType: VARCHAR(152)
-            defaultValue: ''
-            description: ''
+            defaultValue: ""
+            description: ""
             name: N_COMMENT
             nullable: true
             primaryKey: false
@@ -70,8 +70,8 @@ steps:
         join:
           joinCondition: FROM {{ ref('SRC', 'NATION') }}
       name: NATION
-      schema: ''
+      schema: ""
       sqlType: Source
       table: NATION
       type: sourceInput
-    stepCounter: '20337'
+    stepCounter: "20337"
