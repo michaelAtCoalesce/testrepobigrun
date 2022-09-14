@@ -59,8 +59,7 @@ steps:
               - columnReferences:
                   - columnCounter: 15059
                     stepCounter: "20338"
-                transform: '"BVCV_CUSTOMER111111"."C_ACCTBAL" + "BVCV_CUSTOMER1111"."C_ACCTBAL"
-                  + "BVCV_CUSTOMER111111"."C_COMMENT"'
+                transform: "1"
           - columnReference:
               columnCounter: 15121
               stepCounter: 20346
@@ -148,12 +147,15 @@ steps:
         cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
-          - aliases: {}
+          - aliases:
+              ORDERS: "20338"
             customSQL:
               customSQL: ""
-            dependencies: []
+            dependencies:
+              - locationName: SRC
+                nodeName: ORDERS
             join:
-              joinCondition: ""
+              joinCondition: FROM {{ ref('SRC', 'ORDERS') }} "ORDERS"
             name: STG_ORDERS
             noLinkRefs: []
       name: STG_ORDERS
