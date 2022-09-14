@@ -1,5 +1,5 @@
 steps:
-  STG_CUSTOMER72-21385:
+  STG_CUSTOMER72-22981:
     operation:
       config:
         insertStrategy: INSERT
@@ -19,8 +19,8 @@ steps:
         appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: "23051"
-              stepCounter: "21385"
+              columnCounter: 35914
+              stepCounter: "22981"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -29,12 +29,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 22978
-                    stepCounter: "21377"
+                  - columnCounter: 32772
+                    stepCounter: "22579"
                 transform: ""
           - columnReference:
-              columnCounter: 23052
-              stepCounter: "21385"
+              columnCounter: 35915
+              stepCounter: "22981"
             dataType: VARCHAR(25)
             description: ""
             hashColumns: []
@@ -43,12 +43,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 22979
-                    stepCounter: "21377"
+                  - columnCounter: 32773
+                    stepCounter: "22579"
                 transform: ""
           - columnReference:
-              columnCounter: 23053
-              stepCounter: "21385"
+              columnCounter: 35916
+              stepCounter: "22981"
             dataType: VARCHAR(40)
             description: ""
             hashColumns: []
@@ -57,12 +57,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 22980
-                    stepCounter: "21377"
+                  - columnCounter: 32774
+                    stepCounter: "22579"
                 transform: ""
           - columnReference:
-              columnCounter: 23054
-              stepCounter: "21385"
+              columnCounter: 35917
+              stepCounter: "22981"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -71,12 +71,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 22981
-                    stepCounter: "21377"
+                  - columnCounter: 32775
+                    stepCounter: "22579"
                 transform: ""
           - columnReference:
-              columnCounter: 23055
-              stepCounter: "21385"
+              columnCounter: 35918
+              stepCounter: "22981"
             dataType: VARCHAR(15)
             description: ""
             hashColumns: []
@@ -85,12 +85,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 22982
-                    stepCounter: "21377"
+                  - columnCounter: 32776
+                    stepCounter: "22579"
                 transform: ""
           - columnReference:
-              columnCounter: 23056
-              stepCounter: "21385"
+              columnCounter: 35919
+              stepCounter: "22981"
             dataType: NUMBER(12,2)
             description: ""
             hashColumns: []
@@ -99,12 +99,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 22983
-                    stepCounter: "21377"
+                  - columnCounter: 32777
+                    stepCounter: "22579"
                 transform: ""
           - columnReference:
-              columnCounter: 23057
-              stepCounter: "21385"
+              columnCounter: 35920
+              stepCounter: "22981"
             dataType: VARCHAR(10)
             description: ""
             hashColumns: []
@@ -113,12 +113,12 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 22984
-                    stepCounter: "21377"
+                  - columnCounter: 32778
+                    stepCounter: "22579"
                 transform: ""
           - columnReference:
-              columnCounter: 23058
-              stepCounter: "21385"
+              columnCounter: 35921
+              stepCounter: "22981"
             dataType: VARCHAR(117)
             description: ""
             hashColumns: []
@@ -127,8 +127,8 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 22985
-                    stepCounter: "21377"
+                  - columnCounter: 32779
+                    stepCounter: "22579"
                 transform: ""
         cteString: ""
         enabledColumnTestIDs: []
@@ -137,9 +137,9 @@ steps:
               customSQL: ""
             dependencies:
               - locationName: TEST
-                nodeName: BVCV_CUSTOMER7
+                nodeName: STG_CUSTOMER7
             join:
-              joinCondition: FROM {{ ref('TEST', 'BVCV_CUSTOMER7') }} "BVCV_CUSTOMER7"
+              joinCondition: FROM {{ ref('TEST', 'STG_CUSTOMER7') }} "STG_CUSTOMER7"
             name: STG_CUSTOMER72
             noLinkRefs: []
       name: STG_CUSTOMER72
@@ -147,4 +147,4 @@ steps:
       schema: ""
       sqlType: Stage
       type: sql
-    stepCounter: "21385"
+    stepCounter: "22981"
