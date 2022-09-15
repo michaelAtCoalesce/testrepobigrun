@@ -117,8 +117,8 @@ steps:
         enabledColumnTestIDs: []
         sourceMapping:
           - aliases:
+              STG_SUPPLIER: "23459"
               STG_SUPPLIER1: "23461"
-              SUPPLIER: "23459"
             customSQL:
               customSQL: ""
             dependencies:
@@ -126,10 +126,10 @@ steps:
                 nodeName: STG_SUPPLIER
             join:
               joinCondition: |-
-                FROM {{ ref('TEST', 'STG_SUPPLIER') }} "SUPPLIER"
+                FROM {{ ref('TEST', 'STG_SUPPLIER') }} "STG_SUPPLIER"
                 INNER JOIN {{ ref_no_link('TEST', 'STG_SUPPLIER1') }} 
                 "STG_SUPPLIER1"
-                ON "SUPPLIER"."S_SUPPKEY" = "STG_SUPPLIER1"."S_SUPPKEY"
+                ON "STG_SUPPLIER"."S_SUPPKEY" = "STG_SUPPLIER1"."S_SUPPKEY"
             name: V_SUPPLIER
             noLinkRefs:
               - locationName: TEST
