@@ -1,0 +1,105 @@
+steps:
+  V_PARTSUPP-23470:
+    operation:
+      config:
+        insertStrategy: UNION
+        selectDistinct: false
+      database: ""
+      dependencies: []
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: view
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 39735
+              stepCounter: "23470"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: PS_PARTKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 39730
+                    stepCounter: "23469"
+                transform: ""
+          - columnReference:
+              columnCounter: 39736
+              stepCounter: "23470"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: PS_SUPPKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 39731
+                    stepCounter: "23469"
+                transform: ""
+          - columnReference:
+              columnCounter: 39737
+              stepCounter: "23470"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: PS_AVAILQTY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 39732
+                    stepCounter: "23469"
+                transform: ""
+          - columnReference:
+              columnCounter: 39738
+              stepCounter: "23470"
+            dataType: NUMBER(12,2)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: PS_SUPPLYCOST
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 39733
+                    stepCounter: "23469"
+                transform: ""
+          - columnReference:
+              columnCounter: 39739
+              stepCounter: "23470"
+            dataType: VARCHAR(199)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: PS_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 39734
+                    stepCounter: "23469"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_PARTSUPP
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_PARTSUPP') }} "STG_PARTSUPP"
+            name: V_PARTSUPP
+            noLinkRefs: []
+      name: V_PARTSUPP
+      overrideSQL: false
+      schema: ""
+      sqlType: View
+      type: sql
+    stepCounter: "23470"
