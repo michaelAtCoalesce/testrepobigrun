@@ -158,7 +158,7 @@ steps:
                 FROM {{ ref('SRC', 'ORDERS') }} "ORDERS"
                 INNER JOIN {{ ref_no_link('TEST', 'STG_ORDERS') }} 
                 "STG_ORDERS"
-                ON "ORDERS".""O_ORDERKEY"" = "STG_ORDERS".""O_ORDERKEY""
+                ON "ORDERS"."O_ORDERKEY" = "STG_ORDERS"."O_ORDERKEY"
             name: V_ORDERS
             noLinkRefs:
               - locationName: TEST
