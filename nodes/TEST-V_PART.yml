@@ -27,12 +27,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40042
-                    stepCounter: "23509"
+                  - columnCounter: 40060
+                    stepCounter: "23511"
                 transform: ""
               - columnReferences:
-                  - columnCounter: 40051
-                    stepCounter: "23510"
+                  - columnCounter: 40069
+                    stepCounter: "23512"
                 transform: ""
           - columnReference:
               columnCounter: 40034
@@ -45,12 +45,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40043
-                    stepCounter: "23509"
+                  - columnCounter: 40061
+                    stepCounter: "23511"
                 transform: ""
               - columnReferences:
-                  - columnCounter: 40052
-                    stepCounter: "23510"
+                  - columnCounter: 40070
+                    stepCounter: "23512"
                 transform: ""
           - columnReference:
               columnCounter: 40035
@@ -63,12 +63,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40044
-                    stepCounter: "23509"
+                  - columnCounter: 40062
+                    stepCounter: "23511"
                 transform: ""
               - columnReferences:
-                  - columnCounter: 40053
-                    stepCounter: "23510"
+                  - columnCounter: 40071
+                    stepCounter: "23512"
                 transform: ""
           - columnReference:
               columnCounter: 40036
@@ -81,12 +81,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40045
-                    stepCounter: "23509"
+                  - columnCounter: 40063
+                    stepCounter: "23511"
                 transform: ""
               - columnReferences:
-                  - columnCounter: 40054
-                    stepCounter: "23510"
+                  - columnCounter: 40072
+                    stepCounter: "23512"
                 transform: ""
           - columnReference:
               columnCounter: 40037
@@ -99,12 +99,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40046
-                    stepCounter: "23509"
+                  - columnCounter: 40064
+                    stepCounter: "23511"
                 transform: ""
               - columnReferences:
-                  - columnCounter: 40055
-                    stepCounter: "23510"
+                  - columnCounter: 40073
+                    stepCounter: "23512"
                 transform: ""
           - columnReference:
               columnCounter: 40038
@@ -117,12 +117,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40047
-                    stepCounter: "23509"
+                  - columnCounter: 40065
+                    stepCounter: "23511"
                 transform: ""
               - columnReferences:
-                  - columnCounter: 40056
-                    stepCounter: "23510"
+                  - columnCounter: 40074
+                    stepCounter: "23512"
                 transform: ""
           - columnReference:
               columnCounter: 40039
@@ -135,12 +135,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40048
-                    stepCounter: "23509"
+                  - columnCounter: 40066
+                    stepCounter: "23511"
                 transform: ""
               - columnReferences:
-                  - columnCounter: 40057
-                    stepCounter: "23510"
+                  - columnCounter: 40075
+                    stepCounter: "23512"
                 transform: ""
           - columnReference:
               columnCounter: 40040
@@ -153,12 +153,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40049
-                    stepCounter: "23509"
+                  - columnCounter: 40067
+                    stepCounter: "23511"
                 transform: ""
               - columnReferences:
-                  - columnCounter: 40058
-                    stepCounter: "23510"
+                  - columnCounter: 40076
+                    stepCounter: "23512"
                 transform: ""
           - columnReference:
               columnCounter: 40041
@@ -171,37 +171,39 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40050
-                    stepCounter: "23509"
+                  - columnCounter: 40068
+                    stepCounter: "23511"
                 transform: ""
               - columnReferences:
-                  - columnCounter: 40059
-                    stepCounter: "23510"
+                  - columnCounter: 40077
+                    stepCounter: "23512"
                 transform: ""
         enabledColumnTestIDs: []
         sourceMapping:
           - aliases:
-              STG_PART: "23509"
+              STG_PART11: "23511"
             customSQL:
               customSQL: ""
             dependencies:
               - locationName: TEST
-                nodeName: STG_PART
+                nodeName: STG_PART11
+              - locationName: TEST
+                nodeName: STG_PART2
             join:
-              joinCondition: FROM {{ ref('TEST', 'STG_PART') }} "STG_PART"
+              joinCondition: FROM {{ ref('TEST', 'STG_PART11') }} "STG_PART11"
             name: src1
             noLinkRefs: []
           - aliases:
-              STG_PART1: "23510"
+              STG_PART2: "23512"
             customSQL:
               customSQL: ""
             dependencies:
               - locationName: TEST
-                nodeName: STG_PART
+                nodeName: STG_PART11
               - locationName: TEST
-                nodeName: STG_PART1
+                nodeName: STG_PART2
             join:
-              joinCondition: FROM {{ ref('TEST', 'STG_PART1') }} "STG_PART1"
+              joinCondition: FROM {{ ref('TEST', 'STG_PART2') }} "STG_PART2"
             name: src2
             noLinkRefs: []
       name: V_PART
