@@ -1,0 +1,101 @@
+steps:
+  V_NATION-23481:
+    operation:
+      config:
+        insertStrategy: UNION
+        selectDistinct: false
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: view
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 39811
+              stepCounter: "23481"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: N_NATIONKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 39774
+                    stepCounter: "23475"
+                transform: ""
+          - columnReference:
+              columnCounter: 39812
+              stepCounter: "23481"
+            dataType: VARCHAR(25)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: N_NAME
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 39775
+                    stepCounter: "23475"
+                transform: ""
+          - columnReference:
+              columnCounter: 39813
+              stepCounter: "23481"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: N_REGIONKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 39776
+                    stepCounter: "23475"
+                transform: ""
+          - columnReference:
+              columnCounter: 39814
+              stepCounter: "23481"
+            dataType: VARCHAR(152)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: N_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 39777
+                    stepCounter: "23475"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - aliases:
+              NATION: "23475"
+              STG_NATION: "23482"
+            customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: SRC
+                nodeName: NATION
+            join:
+              joinCondition: |-
+                FROM {{ ref('SRC', 'NATION') }} "NATION"
+                INNER JOIN {{ ref_no_link('TEST', 'STG_NATION') }} 
+                "STG_NATION"
+                ON "STG_NATION"."N_NATIONKEY" = "NATION"."N_NATIONKEY"
+            name: V_NATION
+            noLinkRefs:
+              - locationName: TEST
+                nodeName: STG_NATION
+      name: V_NATION
+      overrideSQL: false
+      schema: ""
+      sqlType: View
+      type: sql
+    stepCounter: "23481"
