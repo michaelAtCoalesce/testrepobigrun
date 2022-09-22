@@ -1,0 +1,212 @@
+steps:
+  V_PART-23508:
+    operation:
+      config:
+        insertStrategy: UNION
+        selectDistinct: false
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: true
+      locationID: ""
+      locationName: TEST
+      materializationType: view
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 40033
+              stepCounter: "23508"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_PARTKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40042
+                    stepCounter: "23509"
+                transform: ""
+              - columnReferences:
+                  - columnCounter: 40051
+                    stepCounter: "23510"
+                transform: ""
+          - columnReference:
+              columnCounter: 40034
+              stepCounter: "23508"
+            dataType: VARCHAR(55)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_NAME
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40043
+                    stepCounter: "23509"
+                transform: ""
+              - columnReferences:
+                  - columnCounter: 40052
+                    stepCounter: "23510"
+                transform: ""
+          - columnReference:
+              columnCounter: 40035
+              stepCounter: "23508"
+            dataType: VARCHAR(25)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_MFGR
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40044
+                    stepCounter: "23509"
+                transform: ""
+              - columnReferences:
+                  - columnCounter: 40053
+                    stepCounter: "23510"
+                transform: ""
+          - columnReference:
+              columnCounter: 40036
+              stepCounter: "23508"
+            dataType: VARCHAR(10)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_BRAND
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40045
+                    stepCounter: "23509"
+                transform: ""
+              - columnReferences:
+                  - columnCounter: 40054
+                    stepCounter: "23510"
+                transform: ""
+          - columnReference:
+              columnCounter: 40037
+              stepCounter: "23508"
+            dataType: VARCHAR(25)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_TYPE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40046
+                    stepCounter: "23509"
+                transform: ""
+              - columnReferences:
+                  - columnCounter: 40055
+                    stepCounter: "23510"
+                transform: ""
+          - columnReference:
+              columnCounter: 40038
+              stepCounter: "23508"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_SIZE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40047
+                    stepCounter: "23509"
+                transform: ""
+              - columnReferences:
+                  - columnCounter: 40056
+                    stepCounter: "23510"
+                transform: ""
+          - columnReference:
+              columnCounter: 40039
+              stepCounter: "23508"
+            dataType: VARCHAR(10)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_CONTAINER
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40048
+                    stepCounter: "23509"
+                transform: ""
+              - columnReferences:
+                  - columnCounter: 40057
+                    stepCounter: "23510"
+                transform: ""
+          - columnReference:
+              columnCounter: 40040
+              stepCounter: "23508"
+            dataType: NUMBER(12,2)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_RETAILPRICE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40049
+                    stepCounter: "23509"
+                transform: ""
+              - columnReferences:
+                  - columnCounter: 40058
+                    stepCounter: "23510"
+                transform: ""
+          - columnReference:
+              columnCounter: 40041
+              stepCounter: "23508"
+            dataType: VARCHAR(23)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40050
+                    stepCounter: "23509"
+                transform: ""
+              - columnReferences:
+                  - columnCounter: 40059
+                    stepCounter: "23510"
+                transform: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - aliases:
+              STG_PART: "23509"
+            customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_PART
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_PART') }} "STG_PART"
+            name: src1
+            noLinkRefs: []
+          - aliases:
+              STG_PART1: "23510"
+            customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_PART
+              - locationName: TEST
+                nodeName: STG_PART1
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_PART1') }} "STG_PART1"
+            name: src2
+            noLinkRefs: []
+      name: V_PART
+      overrideSQL: false
+      schema: ""
+      sqlType: View
+      type: sql
+    stepCounter: "23508"
