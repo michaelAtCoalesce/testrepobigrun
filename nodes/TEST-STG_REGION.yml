@@ -1,9 +1,12 @@
 steps:
-  V_REGION-23489:
+  STG_REGION-23490:
     operation:
       config:
-        insertStrategy: UNION
-        selectDistinct: false
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
       database: ""
       dependencies: []
       deployEnabled: true
@@ -12,13 +15,13 @@ steps:
       isMultisource: false
       locationID: ""
       locationName: TEST
-      materializationType: view
+      materializationType: table
       metadata:
         appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: 39893
-              stepCounter: "23489"
+              columnCounter: 39896
+              stepCounter: "23490"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -31,8 +34,8 @@ steps:
                     stepCounter: "23479"
                 transform: ""
           - columnReference:
-              columnCounter: 39894
-              stepCounter: "23489"
+              columnCounter: 39897
+              stepCounter: "23490"
             dataType: VARCHAR(25)
             description: ""
             hashColumns: []
@@ -45,8 +48,8 @@ steps:
                     stepCounter: "23479"
                 transform: ""
           - columnReference:
-              columnCounter: 39895
-              stepCounter: "23489"
+              columnCounter: 39898
+              stepCounter: "23490"
             dataType: VARCHAR(152)
             description: ""
             hashColumns: []
@@ -61,20 +64,18 @@ steps:
         cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
-          - aliases:
-              STG_REGION: "23490"
-            customSQL:
+          - customSQL:
               customSQL: ""
             dependencies:
-              - locationName: TEST
-                nodeName: STG_REGION
+              - locationName: SRC
+                nodeName: REGION
             join:
-              joinCondition: FROM {{ ref('TEST', 'STG_REGION') }} "STG_REGION"
-            name: V_REGION
+              joinCondition: FROM {{ ref('SRC', 'REGION') }} "REGION"
+            name: STG_REGION
             noLinkRefs: []
-      name: V_REGION
+      name: STG_REGION
       overrideSQL: false
       schema: ""
-      sqlType: View
+      sqlType: Stage
       type: sql
-    stepCounter: "23489"
+    stepCounter: "23490"
