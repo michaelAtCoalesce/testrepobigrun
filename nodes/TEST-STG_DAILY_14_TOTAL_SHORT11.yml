@@ -1,0 +1,67 @@
+steps:
+  STG_DAILY_14_TOTAL_SHORT11-23563:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
+      database: ""
+      dependencies: []
+      deployEnabled: false
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 40534
+              stepCounter: "23563"
+            dataType: VARIANT
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: V
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40482
+                    stepCounter: "23556"
+                transform: ""
+          - columnReference:
+              columnCounter: 40535
+              stepCounter: "23563"
+            dataType: TIMESTAMP_NTZ(9)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: T
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40483
+                    stepCounter: "23556"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_DAILY_14_TOTAL_SHORT1
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_DAILY_14_TOTAL_SHORT1') }} "STG_DAILY_14_TOTAL_SHORT1"
+            name: STG_DAILY_14_TOTAL_SHORT11
+            noLinkRefs: []
+      name: STG_DAILY_14_TOTAL_SHORT11
+      overrideSQL: false
+      schema: ""
+      sqlType: Stage
+      type: sql
+    stepCounter: "23563"
