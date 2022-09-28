@@ -1,5 +1,5 @@
 steps:
-  STG_PART-23545:
+  STG_ORDERS1-23558:
     operation:
       config:
         insertStrategy: INSERT
@@ -9,7 +9,7 @@ steps:
         truncateBefore: true
       database: ""
       dependencies: []
-      deployEnabled: true
+      deployEnabled: false
       description: ""
       isDataVault: false
       isMultisource: false
@@ -20,130 +20,130 @@ steps:
         appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: 40405
-              stepCounter: "23545"
+              columnCounter: 40500
+              stepCounter: "23558"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_PARTKEY
-            nullable: false
+            name: O_ORDERKEY
+            nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40353
-                    stepCounter: "23538"
+                  - columnCounter: 40448
+                    stepCounter: "23551"
                 transform: ""
           - columnReference:
-              columnCounter: 40406
-              stepCounter: "23545"
-            dataType: VARCHAR(55)
-            description: ""
-            hashColumns: []
-            hashDetails: null
-            name: P_NAME
-            nullable: false
-            sourceColumnReferences:
-              - columnReferences:
-                  - columnCounter: 40354
-                    stepCounter: "23538"
-                transform: ""
-          - columnReference:
-              columnCounter: 40407
-              stepCounter: "23545"
-            dataType: VARCHAR(25)
-            description: ""
-            hashColumns: []
-            hashDetails: null
-            name: P_MFGR
-            nullable: false
-            sourceColumnReferences:
-              - columnReferences:
-                  - columnCounter: 40355
-                    stepCounter: "23538"
-                transform: ""
-          - columnReference:
-              columnCounter: 40408
-              stepCounter: "23545"
-            dataType: VARCHAR(10)
-            description: ""
-            hashColumns: []
-            hashDetails: null
-            name: P_BRAND
-            nullable: false
-            sourceColumnReferences:
-              - columnReferences:
-                  - columnCounter: 40356
-                    stepCounter: "23538"
-                transform: ""
-          - columnReference:
-              columnCounter: 40409
-              stepCounter: "23545"
-            dataType: VARCHAR(25)
-            description: ""
-            hashColumns: []
-            hashDetails: null
-            name: P_TYPE
-            nullable: false
-            sourceColumnReferences:
-              - columnReferences:
-                  - columnCounter: 40357
-                    stepCounter: "23538"
-                transform: ""
-          - columnReference:
-              columnCounter: 40410
-              stepCounter: "23545"
+              columnCounter: 40501
+              stepCounter: "23558"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_SIZE
-            nullable: false
+            name: O_CUSTKEY
+            nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40358
-                    stepCounter: "23538"
+                  - columnCounter: 40449
+                    stepCounter: "23551"
                 transform: ""
           - columnReference:
-              columnCounter: 40411
-              stepCounter: "23545"
-            dataType: VARCHAR(10)
+              columnCounter: 40502
+              stepCounter: "23558"
+            dataType: VARCHAR(1)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_CONTAINER
+            name: O_ORDERSTATUS
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40359
-                    stepCounter: "23538"
+                  - columnCounter: 40450
+                    stepCounter: "23551"
                 transform: ""
           - columnReference:
-              columnCounter: 40412
-              stepCounter: "23545"
+              columnCounter: 40503
+              stepCounter: "23558"
             dataType: NUMBER(12,2)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_RETAILPRICE
+            name: O_TOTALPRICE
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40360
-                    stepCounter: "23538"
+                  - columnCounter: 40451
+                    stepCounter: "23551"
                 transform: ""
           - columnReference:
-              columnCounter: 40413
-              stepCounter: "23545"
-            dataType: VARCHAR(23)
+              columnCounter: 40504
+              stepCounter: "23558"
+            dataType: DATE
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_COMMENT
-            nullable: true
+            name: O_ORDERDATE
+            nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40361
-                    stepCounter: "23538"
+                  - columnCounter: 40452
+                    stepCounter: "23551"
+                transform: ""
+          - columnReference:
+              columnCounter: 40505
+              stepCounter: "23558"
+            dataType: VARCHAR(15)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: O_ORDERPRIORITY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40453
+                    stepCounter: "23551"
+                transform: ""
+          - columnReference:
+              columnCounter: 40506
+              stepCounter: "23558"
+            dataType: VARCHAR(15)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: O_CLERK
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40454
+                    stepCounter: "23551"
+                transform: ""
+          - columnReference:
+              columnCounter: 40507
+              stepCounter: "23558"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: O_SHIPPRIORITY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40455
+                    stepCounter: "23551"
+                transform: ""
+          - columnReference:
+              columnCounter: 40508
+              stepCounter: "23558"
+            dataType: VARCHAR(79)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: O_COMMENT
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40456
+                    stepCounter: "23551"
                 transform: ""
         cteString: ""
         enabledColumnTestIDs: []
@@ -151,15 +151,15 @@ steps:
           - customSQL:
               customSQL: ""
             dependencies:
-              - locationName: SRC
-                nodeName: PART
+              - locationName: TEST
+                nodeName: V_ORDERS
             join:
-              joinCondition: FROM {{ ref('SRC', 'PART') }} "PART"
-            name: STG_PART
+              joinCondition: FROM {{ ref('TEST', 'V_ORDERS') }} "V_ORDERS"
+            name: STG_ORDERS1
             noLinkRefs: []
-      name: STG_PART
+      name: STG_ORDERS1
       overrideSQL: false
       schema: ""
       sqlType: Stage
       type: sql
-    stepCounter: "23545"
+    stepCounter: "23558"

@@ -1,5 +1,5 @@
 steps:
-  V_PART-23508:
+  V_PART-23552:
     operation:
       config:
         insertStrategy: UNION
@@ -9,7 +9,7 @@ steps:
       deployEnabled: true
       description: ""
       isDataVault: false
-      isMultisource: true
+      isMultisource: false
       locationID: ""
       locationName: TEST
       materializationType: view
@@ -17,8 +17,8 @@ steps:
         appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: 40033
-              stepCounter: "23508"
+              columnCounter: 40457
+              stepCounter: "23552"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -27,16 +27,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40060
-                    stepCounter: "23511"
-                transform: ""
-              - columnReferences:
-                  - columnCounter: 40069
-                    stepCounter: "23512"
+                  - columnCounter: 40405
+                    stepCounter: "23545"
                 transform: ""
           - columnReference:
-              columnCounter: 40034
-              stepCounter: "23508"
+              columnCounter: 40458
+              stepCounter: "23552"
             dataType: VARCHAR(55)
             description: ""
             hashColumns: []
@@ -45,16 +41,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40061
-                    stepCounter: "23511"
-                transform: ""
-              - columnReferences:
-                  - columnCounter: 40070
-                    stepCounter: "23512"
+                  - columnCounter: 40406
+                    stepCounter: "23545"
                 transform: ""
           - columnReference:
-              columnCounter: 40035
-              stepCounter: "23508"
+              columnCounter: 40459
+              stepCounter: "23552"
             dataType: VARCHAR(25)
             description: ""
             hashColumns: []
@@ -63,16 +55,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40062
-                    stepCounter: "23511"
-                transform: ""
-              - columnReferences:
-                  - columnCounter: 40071
-                    stepCounter: "23512"
+                  - columnCounter: 40407
+                    stepCounter: "23545"
                 transform: ""
           - columnReference:
-              columnCounter: 40036
-              stepCounter: "23508"
+              columnCounter: 40460
+              stepCounter: "23552"
             dataType: VARCHAR(10)
             description: ""
             hashColumns: []
@@ -81,16 +69,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40063
-                    stepCounter: "23511"
-                transform: ""
-              - columnReferences:
-                  - columnCounter: 40072
-                    stepCounter: "23512"
+                  - columnCounter: 40408
+                    stepCounter: "23545"
                 transform: ""
           - columnReference:
-              columnCounter: 40037
-              stepCounter: "23508"
+              columnCounter: 40461
+              stepCounter: "23552"
             dataType: VARCHAR(25)
             description: ""
             hashColumns: []
@@ -99,16 +83,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40064
-                    stepCounter: "23511"
-                transform: ""
-              - columnReferences:
-                  - columnCounter: 40073
-                    stepCounter: "23512"
+                  - columnCounter: 40409
+                    stepCounter: "23545"
                 transform: ""
           - columnReference:
-              columnCounter: 40038
-              stepCounter: "23508"
+              columnCounter: 40462
+              stepCounter: "23552"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -117,16 +97,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40065
-                    stepCounter: "23511"
-                transform: ""
-              - columnReferences:
-                  - columnCounter: 40074
-                    stepCounter: "23512"
+                  - columnCounter: 40410
+                    stepCounter: "23545"
                 transform: ""
           - columnReference:
-              columnCounter: 40039
-              stepCounter: "23508"
+              columnCounter: 40463
+              stepCounter: "23552"
             dataType: VARCHAR(10)
             description: ""
             hashColumns: []
@@ -135,16 +111,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40066
-                    stepCounter: "23511"
-                transform: ""
-              - columnReferences:
-                  - columnCounter: 40075
-                    stepCounter: "23512"
+                  - columnCounter: 40411
+                    stepCounter: "23545"
                 transform: ""
           - columnReference:
-              columnCounter: 40040
-              stepCounter: "23508"
+              columnCounter: 40464
+              stepCounter: "23552"
             dataType: NUMBER(12,2)
             description: ""
             hashColumns: []
@@ -153,16 +125,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40067
-                    stepCounter: "23511"
-                transform: ""
-              - columnReferences:
-                  - columnCounter: 40076
-                    stepCounter: "23512"
+                  - columnCounter: 40412
+                    stepCounter: "23545"
                 transform: ""
           - columnReference:
-              columnCounter: 40041
-              stepCounter: "23508"
+              columnCounter: 40465
+              stepCounter: "23552"
             dataType: VARCHAR(23)
             description: ""
             hashColumns: []
@@ -171,44 +139,24 @@ steps:
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40068
-                    stepCounter: "23511"
+                  - columnCounter: 40413
+                    stepCounter: "23545"
                 transform: ""
-              - columnReferences:
-                  - columnCounter: 40077
-                    stepCounter: "23512"
-                transform: ""
+        cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
-          - aliases:
-              STG_PART11: "23511"
-            customSQL:
+          - customSQL:
               customSQL: ""
             dependencies:
               - locationName: TEST
-                nodeName: STG_PART11
-              - locationName: TEST
-                nodeName: STG_PART2
+                nodeName: STG_PART
             join:
-              joinCondition: FROM {{ ref('TEST', 'STG_PART11') }} "STG_PART11"
-            name: src1
-            noLinkRefs: []
-          - aliases:
-              STG_PART2: "23512"
-            customSQL:
-              customSQL: ""
-            dependencies:
-              - locationName: TEST
-                nodeName: STG_PART11
-              - locationName: TEST
-                nodeName: STG_PART2
-            join:
-              joinCondition: FROM {{ ref('TEST', 'STG_PART2') }} "STG_PART2"
-            name: src2
+              joinCondition: FROM {{ ref('TEST', 'STG_PART') }} "STG_PART"
+            name: V_PART
             noLinkRefs: []
       name: V_PART
       overrideSQL: false
       schema: ""
       sqlType: View
       type: sql
-    stepCounter: "23508"
+    stepCounter: "23552"

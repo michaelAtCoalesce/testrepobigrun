@@ -1,5 +1,5 @@
 steps:
-  STG_PART11-23511:
+  STG_CUSTOMER-23541:
     operation:
       config:
         insertStrategy: INSERT
@@ -20,130 +20,116 @@ steps:
         appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: 40060
-              stepCounter: "23511"
+              columnCounter: 40370
+              stepCounter: "23541"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_PARTKEY
+            name: C_CUSTKEY
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40051
-                    stepCounter: "23510"
+                  - columnCounter: 40318
+                    stepCounter: "23534"
                 transform: ""
           - columnReference:
-              columnCounter: 40061
-              stepCounter: "23511"
-            dataType: VARCHAR(55)
-            description: ""
-            hashColumns: []
-            hashDetails: null
-            name: P_NAME
-            nullable: false
-            sourceColumnReferences:
-              - columnReferences:
-                  - columnCounter: 40052
-                    stepCounter: "23510"
-                transform: ""
-          - columnReference:
-              columnCounter: 40062
-              stepCounter: "23511"
+              columnCounter: 40371
+              stepCounter: "23541"
             dataType: VARCHAR(25)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_MFGR
+            name: C_NAME
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40053
-                    stepCounter: "23510"
+                  - columnCounter: 40319
+                    stepCounter: "23534"
                 transform: ""
           - columnReference:
-              columnCounter: 40063
-              stepCounter: "23511"
-            dataType: VARCHAR(10)
+              columnCounter: 40372
+              stepCounter: "23541"
+            dataType: VARCHAR(40)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_BRAND
+            name: C_ADDRESS
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40054
-                    stepCounter: "23510"
+                  - columnCounter: 40320
+                    stepCounter: "23534"
                 transform: ""
           - columnReference:
-              columnCounter: 40064
-              stepCounter: "23511"
-            dataType: VARCHAR(25)
-            description: ""
-            hashColumns: []
-            hashDetails: null
-            name: P_TYPE
-            nullable: false
-            sourceColumnReferences:
-              - columnReferences:
-                  - columnCounter: 40055
-                    stepCounter: "23510"
-                transform: ""
-          - columnReference:
-              columnCounter: 40065
-              stepCounter: "23511"
+              columnCounter: 40373
+              stepCounter: "23541"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_SIZE
+            name: C_NATIONKEY
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40056
-                    stepCounter: "23510"
+                  - columnCounter: 40321
+                    stepCounter: "23534"
                 transform: ""
           - columnReference:
-              columnCounter: 40066
-              stepCounter: "23511"
-            dataType: VARCHAR(10)
+              columnCounter: 40374
+              stepCounter: "23541"
+            dataType: VARCHAR(15)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_CONTAINER
+            name: C_PHONE
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40057
-                    stepCounter: "23510"
+                  - columnCounter: 40322
+                    stepCounter: "23534"
                 transform: ""
           - columnReference:
-              columnCounter: 40067
-              stepCounter: "23511"
+              columnCounter: 40375
+              stepCounter: "23541"
             dataType: NUMBER(12,2)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_RETAILPRICE
+            name: C_ACCTBAL
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40058
-                    stepCounter: "23510"
+                  - columnCounter: 40323
+                    stepCounter: "23534"
                 transform: ""
           - columnReference:
-              columnCounter: 40068
-              stepCounter: "23511"
-            dataType: VARCHAR(23)
+              columnCounter: 40376
+              stepCounter: "23541"
+            dataType: VARCHAR(10)
             description: ""
             hashColumns: []
             hashDetails: null
-            name: P_COMMENT
+            name: C_MKTSEGMENT
             nullable: true
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 40059
-                    stepCounter: "23510"
+                  - columnCounter: 40324
+                    stepCounter: "23534"
+                transform: ""
+          - columnReference:
+              columnCounter: 40377
+              stepCounter: "23541"
+            dataType: VARCHAR(117)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: C_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 40325
+                    stepCounter: "23534"
                 transform: ""
         cteString: ""
         enabledColumnTestIDs: []
@@ -151,15 +137,15 @@ steps:
           - customSQL:
               customSQL: ""
             dependencies:
-              - locationName: TEST
-                nodeName: STG_PART1
+              - locationName: SRC
+                nodeName: CUSTOMER
             join:
-              joinCondition: FROM {{ ref('TEST', 'STG_PART1') }} "STG_PART1"
-            name: STG_PART11
+              joinCondition: FROM {{ ref('SRC', 'CUSTOMER') }} "CUSTOMER"
+            name: STG_CUSTOMER
             noLinkRefs: []
-      name: STG_PART11
+      name: STG_CUSTOMER
       overrideSQL: false
       schema: ""
       sqlType: Stage
       type: sql
-    stepCounter: "23511"
+    stepCounter: "23541"
