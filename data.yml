@@ -20,6 +20,9 @@ locations:
       "56":
         database: SNOWFLAKE_SAMPLE_DATA
         schema: TPCH_SF1
+      "57":
+        database: SNOWFLAKE_SAMPLE_DATA
+        schema: TPCH_SF1
       "59":
         database: SNOWFLAKE_SAMPLE_DATA
         schema: TPCH_SF1
@@ -37,6 +40,9 @@ locations:
       "56":
         database: MICHAELXU_WH
         schema: NOLAN_SCHEMA_STG
+      "57":
+        database: MICHAELXU_WH
+        schema: STG_SCHEMA
       "59":
         database: MICHAELXU_WH
         schema: NOLAN_SCHEMA_STG
@@ -54,6 +60,9 @@ locations:
       "56":
         database: MICHAELXU_WH
         schema: NOLAN_SCHEMA_TEST
+      "57":
+        database: MICHAELXU_WH
+        schema: DEV_TEST
       "59":
         database: MICHAELXU_WH
         schema: NOLAN_SCHEMA_TEST
@@ -88,7 +97,38 @@ stepTypes:
             - view
       templates:
         create:
-          templateString: "{% if node.materializationType == 'view' %}\n\t{{ stage('Create Data Vault View') }}\n\n\tCREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"{{ col.name }}\"\n\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t{% endfor %}\n\t)\n\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\tAS SELECT \n    {% for col in sources[0].columns %}\n        {% if col.isSurrogateKey or col.isSystemUpdateDate or col.isSystemCreateDate %}\n            NULL\n        {% else %}\n            {% if col.transform | trim != '' %}\n                {{ col.transform }}\n            {% else %}\n                \"{{ col.sourceColumns[0].nodeName }}\".\"{{ col.sourceColumns[0].columnName }}\"\n            {% endif %}\n        {% endif %}\n        AS \"{{ col.name }}\"\n        {%- if not loop.last -%}, {% endif %}\n    {% endfor %}\n    {{ sources[0].join }}\n\n    QUALIFY RANK() OVER(PARTITION BY HH ORDER BY LOAD_DATE DESC) = 1\n\n{% endif %}"
+          templateString: |-
+            {% if node.materializationType == 'view' %}
+            	{{ stage('Create Data Vault View') }}
+
+            	CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}
+            	(
+            		{% for col in columns %}
+            			"{{ col.name }}"
+            			{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            			{%- if not loop.last -%},{% endif %}
+            		{% endfor %}
+            	)
+            	{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+            	AS SELECT 
+                {% for col in sources[0].columns %}
+                    {% if col.isSurrogateKey or col.isSystemUpdateDate or col.isSystemCreateDate %}
+                        NULL
+                    {% else %}
+                        {% if col.transform | trim != '' %}
+                            {{ col.transform }}
+                        {% else %}
+                            "{{ col.sourceColumns[0].nodeName }}"."{{ col.sourceColumns[0].columnName }}"
+                        {% endif %}
+                    {% endif %}
+                    AS "{{ col.name }}"
+                    {%- if not loop.last -%}, {% endif %}
+                {% endfor %}
+                {{ sources[0].join }}
+
+                QUALIFY RANK() OVER(PARTITION BY HH ORDER BY LOAD_DATE DESC) = 1
+
+            {% endif %}
         run:
           templateString: ""
     name: BV Current Satellite
@@ -165,9 +205,150 @@ stepTypes:
             isRequired: false
       templates:
         create:
-          templateString: "{% if node.override.create.enabled %}\n\t{{ stage('Override Create SQL') }}\n\t{{ node.override.create.script }}\n\n{% elif node.materializationType == 'table' %}\n\t{{ stage('Create Stage Table') }}\n\n\tCREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"{{ col.name }}\" {{ col.dataType }}\n\t\t\t{%- if not col.nullable %} NOT NULL\n\t\t\t\t{%- if col.defaultValue | length > 0 %} DEFAULT '{{ col.defaultValue }}'{% endif %}\n\t\t\t{% endif %}\n\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t)\n\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\n\n{% elif node.materializationType == 'view' %}\n    {{ stage('Create Stage View') }}\n\n    CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}\n    (\n        {% for col in columns %}\n            \"{{ col.name }}\"\n            {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n    )\n    {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n    AS\n    {% for source in sources %}\n        SELECT\n        {% for col in source.columns %}\n\n            {% if col.hashDetails %}\n                {{ hash(col.hashDetails.columns, algo=col.hashDetails.algorithm) }}\n\n            {% else %}\n                {% if col.transform | trim != '' %}\n                    {{ col.transform }}\n                {% else %}\n                    \"{{ col.sourceColumns[0].nodeName }}\".\"{{ col.sourceColumns[0].columnName }}\"\n                {% endif %}\n\n            {% endif %}\n\n            AS \"{{ col.name }}\"\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n\n        {{ source.join }}\n\n        {% if not loop.last %}\n            {% if config.insertStrategy in ['UNION', 'UNION ALL'] %}\n                {{ config.insertStrategy }}\n            {% else %}\n                UNION\n            {% endif %}\n        {% endif %}\n    {% endfor %}\n\n{% endif %}\n"
+          templateString: |
+            {% if node.override.create.enabled %}
+            	{{ stage('Override Create SQL') }}
+            	{{ node.override.create.script }}
+
+            {% elif node.materializationType == 'table' %}
+            	{{ stage('Create Stage Table') }}
+
+            	CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}
+            	(
+            		{% for col in columns %}
+            			"{{ col.name }}" {{ col.dataType }}
+            			{%- if not col.nullable %} NOT NULL
+            				{%- if col.defaultValue | length > 0 %} DEFAULT '{{ col.defaultValue }}'{% endif %}
+            			{% endif %}
+            			{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            	)
+            	{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+
+
+            {% elif node.materializationType == 'view' %}
+                {{ stage('Create Stage View') }}
+
+                CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}
+                (
+                    {% for col in columns %}
+                        "{{ col.name }}"
+                        {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+                )
+                {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+                AS
+                {% for source in sources %}
+                    SELECT
+                    {% for col in source.columns %}
+
+                        {% if col.hashDetails %}
+                            {{ hash(col.hashDetails.columns, algo=col.hashDetails.algorithm) }}
+
+                        {% else %}
+                            {% if col.transform | trim != '' %}
+                                {{ col.transform }}
+                            {% else %}
+                                "{{ col.sourceColumns[0].nodeName }}"."{{ col.sourceColumns[0].columnName }}"
+                            {% endif %}
+
+                        {% endif %}
+
+                        AS "{{ col.name }}"
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+
+                    {{ source.join }}
+
+                    {% if not loop.last %}
+                        {% if config.insertStrategy in ['UNION', 'UNION ALL'] %}
+                            {{ config.insertStrategy }}
+                        {% else %}
+                            UNION
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
         run:
-          templateString: "\n{% if nodeMetadata.node.materializationType == 'table' %}\n\t{% if nodeMetadata.config.preSQL %}\n\t\t{{ stage('Pre-SQL') }}\n\t\t{{ nodeMetadata.config.preSQL }}\n\t{% endif %}\n\t\n\t\n\t\n\t\t{% if nodeMetadata.config.truncateBefore %}\n\t\n\t\t\t{{ stage('Truncate Stage Table') }}\n\t\t\tTRUNCATE IF EXISTS {{ ref_no_link(nodeMetadata.node.location.name, nodeMetadata.node.name) }}\n\t\n\t\t{% endif %}\n\t\n\t\n\t\t{% if config.insertStrategy in ['UNION', 'UNION ALL'] %}\n\t\t\t{{ stage( config.insertStrategy + ' Sources' | string ) }}\n\t\t\tINSERT INTO {{ ref_no_link(nodeMetadata.node.location.name, nodeMetadata.node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in columns %}\n\t\t\t\t\t\t\"{{ col.name }}\"\n\t\t\t\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t{% endif %}\n\t\n\t\n\t\t{% for source in nodeMetadata.sources %}\n\t\n\t\t\t{% if config.insertStrategy == 'INSERT' %}\n\t\t\t\t{{ stage('Insert ' + source.name | string ) }}\n\t\n\t\t\t\tINSERT INTO {{ ref_no_link(nodeMetadata.node.location.name, nodeMetadata.node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in source.columns %}\n\t\t\t\t\t\t\"{{ col.name }}\"\n\t\t\t\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t\t{% endif %}\n\t\n\t\t\tSELECT\n\t\t\t{% for col in source.columns %}\n\t\n\t\t\t\t{% if col.hashDetails %}\n\t\t\t\t\t{{ hash(col.hashDetails.columns, algo=col.hashDetails.algorithm) }}\n\t\n\t\t\t\t{% else %}\n\t\t\t\t\t{% if col.transform | trim != '' %}\n\t\t\t\t\t\t{{ col.transform }}\n\t\t\t\t\t{% else %}\n\t\t\t\t\t\t\"{{ col.sourceColumns[0].nodeName }}\".\"{{ col.sourceColumns[0].columnName }}\"\n\t\t\t\t\t{% endif %}\n\t\n\t\t\t\t{% endif %}\n\t\n\t\t\t\tAS \"{{ col.name }}\"\n\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t{% endfor %}\n\t\n\t\t\t{{ source.join }}\n\t\n\t\t\t{% if config.insertStrategy in ['UNION', 'UNION ALL'] and not loop.last %}\n\t\t\t\t{{config.insertStrategy}}\n\t\t\t{% endif %}\n\t\n\t\t{% endfor %}\n\t\n\t{% if nodeMetadata.config.postSQL %}\n\t\t{{ stage('Post-SQL') }}\n\t\t{{ nodeMetadata.config.postSQL }}\n\t{% endif %}\n{% endif %}\n"
+          templateString: |
+
+            {% if nodeMetadata.node.materializationType == 'table' %}
+            	{% if nodeMetadata.config.preSQL %}
+            		{{ stage('Pre-SQL') }}
+            		{{ nodeMetadata.config.preSQL }}
+            	{% endif %}
+            	
+            	
+            	
+            		{% if nodeMetadata.config.truncateBefore %}
+            	
+            			{{ stage('Truncate Stage Table') }}
+            			TRUNCATE IF EXISTS {{ ref_no_link(nodeMetadata.node.location.name, nodeMetadata.node.name) }}
+            	
+            		{% endif %}
+            	
+            	
+            		{% if config.insertStrategy in ['UNION', 'UNION ALL'] %}
+            			{{ stage( config.insertStrategy + ' Sources' | string ) }}
+            			INSERT INTO {{ ref_no_link(nodeMetadata.node.location.name, nodeMetadata.node.name) }}
+            				(
+            					{% for col in columns %}
+            						"{{ col.name }}"
+            						{%- if not loop.last -%},{% endif %}
+            					{% endfor %}
+            				)
+            		{% endif %}
+            	
+            	
+            		{% for source in nodeMetadata.sources %}
+            	
+            			{% if config.insertStrategy == 'INSERT' %}
+            				{{ stage('Insert ' + source.name | string ) }}
+            	
+            				INSERT INTO {{ ref_no_link(nodeMetadata.node.location.name, nodeMetadata.node.name) }}
+            				(
+            					{% for col in source.columns %}
+            						"{{ col.name }}"
+            						{%- if not loop.last -%},{% endif %}
+            					{% endfor %}
+            				)
+            			{% endif %}
+            	
+            			SELECT
+            			{% for col in source.columns %}
+            	
+            				{% if col.hashDetails %}
+            					{{ hash(col.hashDetails.columns, algo=col.hashDetails.algorithm) }}
+            	
+            				{% else %}
+            					{% if col.transform | trim != '' %}
+            						{{ col.transform }}
+            					{% else %}
+            						"{{ col.sourceColumns[0].nodeName }}"."{{ col.sourceColumns[0].columnName }}"
+            					{% endif %}
+            	
+            				{% endif %}
+            	
+            				AS "{{ col.name }}"
+            				{%- if not loop.last -%}, {% endif %}
+            			{% endfor %}
+            	
+            			{{ source.join }}
+            	
+            			{% if config.insertStrategy in ['UNION', 'UNION ALL'] and not loop.last %}
+            				{{config.insertStrategy}}
+            			{% endif %}
+            	
+            		{% endfor %}
+            	
+            	{% if nodeMetadata.config.postSQL %}
+            		{{ stage('Post-SQL') }}
+            		{{ nodeMetadata.config.postSQL }}
+            	{% endif %}
+            {% endif %}
     name: MyNode
     version: 1
   StepType-3:
@@ -283,10 +464,8 @@ stepTypes:
 
             {% endif %}
         run:
-          templateString: >-
-            {% if columns | selectattr('config', 'defined') |
-            map(attribute='config') | selectattr('isDistinctCount')| list |
-            length > 0 %}
+          templateString: |-
+            {% if columns | selectattr('config', 'defined') | map(attribute='config') | selectattr('isDistinctCount')| list | length > 0 %}
                 {{ stage('Profile Distinct') }}
                 
                     MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
@@ -344,10 +523,7 @@ stepTypes:
             {% endif %}
 
 
-
-            {% if columns | selectattr('config', 'defined') |
-            map(attribute='config') | selectattr('isNullCount')| list | length >
-            0 %}
+            {% if columns | selectattr('config', 'defined') | map(attribute='config') | selectattr('isNullCount')| list | length > 0 %}
                 {{ stage('Profile Null Values') }}
                 
                     MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
@@ -404,10 +580,7 @@ stepTypes:
             {% endif %}
 
 
-
-            {% if columns | selectattr('config', 'defined') |
-            map(attribute='config') | selectattr('isMaxMetric')| list | length >
-            0 %}
+            {% if columns | selectattr('config', 'defined') | map(attribute='config') | selectattr('isMaxMetric')| list | length > 0 %}
                 {{ stage('Profile Max') }}
                 
                     MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
@@ -473,10 +646,7 @@ stepTypes:
 
             {% endif %}
 
-
-            {% if columns | selectattr('config', 'defined') |
-            map(attribute='config') | selectattr('isMinMetric')| list | length >
-            0 %}
+            {% if columns | selectattr('config', 'defined') | map(attribute='config') | selectattr('isMinMetric')| list | length > 0 %}
                 {{ stage('Profile Min') }}
                 
                     MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
@@ -542,10 +712,7 @@ stepTypes:
 
             {% endif %}
 
-
-            {% if columns | selectattr('config', 'defined') |
-            map(attribute='config') | selectattr('isAvgMetric')| list | length >
-            0 %}
+            {% if columns | selectattr('config', 'defined') | map(attribute='config') | selectattr('isAvgMetric')| list | length > 0 %}
                 {{ stage('Profile Average') }}
                 
                     MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
@@ -676,9 +843,124 @@ stepTypes:
             isRequired: false
       templates:
         create:
-          templateString: "{% if node.override.create.enabled %}\n\t\n\t{{ node.override.create.script }}\n\n{% elif node.materializationType == 'table' %}\n\t{{ stage('Create Stage Table') }}\n\n\tCREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"{{ col.name }}\" {{ col.dataType }}\n\t\t\t{%- if not col.nullable %} NOT NULL\n\t\t\t\t{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}\n\t\t\t{% endif %}\n\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t)\n\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\n\n{% elif node.materializationType == 'view' %}\n    {{ stage('Create Stage View') }}\n\n    CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}\n    (\n        {% for col in columns %}\n            \"{{ col.name }}\"\n            {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n    )\n    {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n    AS\n    {% for source in sources %}\n        SELECT\n        {% for col in source.columns %}\n            {{ get_source_transform(col) }} AS \"{{ col.name }}\"\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n\n        {{ source.join }}\n\n        {% if not loop.last %}\n            {% if config.insertStrategy in ['UNION', 'UNION ALL'] %}\n                {{ config.insertStrategy }}\n            {% else %}\n                UNION\n            {% endif %}\n        {% endif %}\n    {% endfor %}\n\n{% endif %}\n"
+          templateString: |
+            {% if node.override.create.enabled %}
+            	
+            	{{ node.override.create.script }}
+
+            {% elif node.materializationType == 'table' %}
+            	{{ stage('Create Stage Table') }}
+
+            	CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}
+            	(
+            		{% for col in columns %}
+            			"{{ col.name }}" {{ col.dataType }}
+            			{%- if not col.nullable %} NOT NULL
+            				{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}
+            			{% endif %}
+            			{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            	)
+            	{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+
+
+            {% elif node.materializationType == 'view' %}
+                {{ stage('Create Stage View') }}
+
+                CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}
+                (
+                    {% for col in columns %}
+                        "{{ col.name }}"
+                        {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+                )
+                {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+                AS
+                {% for source in sources %}
+                    SELECT
+                    {% for col in source.columns %}
+                        {{ get_source_transform(col) }} AS "{{ col.name }}"
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+
+                    {{ source.join }}
+
+                    {% if not loop.last %}
+                        {% if config.insertStrategy in ['UNION', 'UNION ALL'] %}
+                            {{ config.insertStrategy }}
+                        {% else %}
+                            UNION
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
         run:
-          templateString: "\n{% if node.materializationType == 'table' %}\n\t{% if config.preSQL %}\n\t\t{{ stage('Pre-SQL') }}\n\t\t{{ config.preSQL }}\n\t{% endif %}\n\t\n\t\n\t\n\t\t{% if config.truncateBefore %}\n\t\n\t\t\t{{ stage('Truncate Stage Table') }}\n\t\t\tTRUNCATE IF EXISTS {{ ref_no_link(node.location.name, node.name) }}\n\t\n\t\t{% endif %}\n\t\n\t\n\t\t{% if config.insertStrategy in ['UNION', 'UNION ALL'] %}\n\t\t\t{{ stage( config.insertStrategy + ' Sources' | string ) }}\n\t\t\tINSERT INTO {{ ref_no_link(node.location.name, node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in columns %}\n\t\t\t\t\t\t\"{{ col.name }}\"\n\t\t\t\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t{% endif %}\n\t\n\t\n\t\t{% for source in sources %}\n\t\n\t\t\t{% if config.insertStrategy == 'INSERT' %}\n\t\t\t\t{{ stage('Insert ' + source.name | string ) }}\n\t\n\t\t\t\tINSERT INTO {{ ref_no_link(node.location.name, node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in source.columns %}\n\t\t\t\t\t\t\"{{ col.name }}\"\n\t\t\t\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t\t{% endif %}\n\t\n\t\t\tSELECT\n\t\t\t{% for col in source.columns %}\n                {{ get_source_transform(col) }} AS \"{{ col.name }}\"\n\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t{% endfor %}\n\t\n\t\t\t{{ source.join }}\n\t\n\t\t\t{% if config.insertStrategy in ['UNION', 'UNION ALL'] and not loop.last %}\n\t\t\t\t{{config.insertStrategy}}\n\t\t\t{% endif %}\n\t\n\t\t{% endfor %}\n\t\n\t{% if config.postSQL %}\n\t\t{{ stage('Post-SQL') }}\n\t\t{{ config.postSQL }}\n\t{% endif %}\n{% endif %}\n"
+          templateString: |
+
+            {% if node.materializationType == 'table' %}
+            	{% if config.preSQL %}
+            		{{ stage('Pre-SQL') }}
+            		{{ config.preSQL }}
+            	{% endif %}
+            	
+            	
+            	
+            		{% if config.truncateBefore %}
+            	
+            			{{ stage('Truncate Stage Table') }}
+            			TRUNCATE IF EXISTS {{ ref_no_link(node.location.name, node.name) }}
+            	
+            		{% endif %}
+            	
+            	
+            		{% if config.insertStrategy in ['UNION', 'UNION ALL'] %}
+            			{{ stage( config.insertStrategy + ' Sources' | string ) }}
+            			INSERT INTO {{ ref_no_link(node.location.name, node.name) }}
+            				(
+            					{% for col in columns %}
+            						"{{ col.name }}"
+            						{%- if not loop.last -%},{% endif %}
+            					{% endfor %}
+            				)
+            		{% endif %}
+            	
+            	
+            		{% for source in sources %}
+            	
+            			{% if config.insertStrategy == 'INSERT' %}
+            				{{ stage('Insert ' + source.name | string ) }}
+            	
+            				INSERT INTO {{ ref_no_link(node.location.name, node.name) }}
+            				(
+            					{% for col in source.columns %}
+            						"{{ col.name }}"
+            						{%- if not loop.last -%},{% endif %}
+            					{% endfor %}
+            				)
+            			{% endif %}
+            	
+            			SELECT
+            			{% for col in source.columns %}
+                            {{ get_source_transform(col) }} AS "{{ col.name }}"
+            				{%- if not loop.last -%}, {% endif %}
+            			{% endfor %}
+            	
+            			{{ source.join }}
+            	
+            			{% if config.insertStrategy in ['UNION', 'UNION ALL'] and not loop.last %}
+            				{{config.insertStrategy}}
+            			{% endif %}
+            	
+            		{% endfor %}
+            	
+            	{% if config.postSQL %}
+            		{{ stage('Post-SQL') }}
+            		{{ config.postSQL }}
+            	{% endif %}
+            {% endif %}
     name: Copy of Stage
     version: 1
   StepType-48:
@@ -760,9 +1042,148 @@ stepTypes:
             isRequired: false
       templates:
         create:
-          templateString: "{% if node.override.create.enabled %}\n\t\n\t{{ node.override.create.script }}\n\n{% elif node.materializationType == 'table' %}\n\t{{ stage('Create Stage Table') }}\n\n\tCREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"{{ col.name }}\" {{ col.dataType }}\n\t\t\t{%- if not col.nullable %} NOT NULL\n\t\t\t\t{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}\n\t\t\t{% endif %}\n\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t)\n\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n    {{ stage(\"another stage\") }}\n            SELECT 1 FROM {{ ref_no_link(node.location.name, node.name) }}\n\n{% elif node.materializationType == 'view' %}\n    {{ stage('Create Stage View') }}\n\n    CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}\n    (\n        {% for col in columns %}\n            \"{{ col.name }}\"\n            {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n    )\n    {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n    AS\n    {% for source in sources %}\n        SELECT\n        {% for col in source.columns %}\n            {{ get_source_transform(col) }} AS \"{{ col.name }}\"\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n\n        {{ source.join }}\n\n        {% if not loop.last %}\n            {% if config.insertStrategy in ['UNION', 'UNION ALL'] %}\n                {{ config.insertStrategy }}\n            {% else %}\n                UNION\n            {% endif %}\n        {% endif %}\n    {% endfor %}\n\n{% endif %}\n"
+          templateString: |
+            {% if node.override.create.enabled %}
+            	
+            	{{ node.override.create.script }}
+
+            {% elif node.materializationType == 'table' %}
+            	{{ stage('Create Stage Table') }}
+
+            	CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}
+            	(
+            		{% for col in columns %}
+            			"{{ col.name }}" {{ col.dataType }}
+            			{%- if not col.nullable %} NOT NULL
+            				{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}
+            			{% endif %}
+            			{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            	)
+            	{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+                {{ stage("another stage") }}
+                        SELECT 1 FROM {{ ref_no_link(node.location.name, node.name) }}
+
+            {% elif node.materializationType == 'view' %}
+                {{ stage('Create Stage View') }}
+
+                CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}
+                (
+                    {% for col in columns %}
+                        "{{ col.name }}"
+                        {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+                )
+                {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+                AS
+                {% for source in sources %}
+                    SELECT
+                    {% for col in source.columns %}
+                        {{ get_source_transform(col) }} AS "{{ col.name }}"
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+
+                    {{ source.join }}
+
+                    {% if not loop.last %}
+                        {% if config.insertStrategy in ['UNION', 'UNION ALL'] %}
+                            {{ config.insertStrategy }}
+                        {% else %}
+                            UNION
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
         run:
-          templateString: "\n    {% for test in node.tests if config.testsEnabled %}\n        {% if test.runOrder == 'Before' %}\n            {{ test_stage(test.name, test.continueOnFailure) }}\n            {{ test.templateString }}\n        {% endif %}\n    {% endfor %}\n\n{% if node.materializationType == 'table' %}\n\t{% if config.preSQL %}\n\t\t{{ stage('Pre-SQL') }}\n\t\t{{ config.preSQL }}\n\t{% endif %}\n\t\n\t\n\t\n\t\t{% if config.truncateBefore %}\n\t\n\t\t\t{{ stage('Truncate Stage Table') }}\n\t\t\tTRUNCATE IF EXISTS {{ ref_no_link(node.location.name, node.name) }}\n\t\n\t\t{% endif %}\n\t\n\t\n\t\t{% if config.insertStrategy in ['UNION', 'UNION ALL'] %}\n\t\t\t{{ stage( config.insertStrategy + ' Sources' | string ) }}\n\t\t\tINSERT INTO {{ ref_no_link(node.location.name, node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in columns %}\n\t\t\t\t\t\t\"{{ col.name }}\"\n\t\t\t\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t{% endif %}\n\t\n\t\n\t\t{% for source in sources %}\n\t\n\t\t\t{% if config.insertStrategy == 'INSERT' %}\n\t\t\t\t{{ stage('Insert ' + source.name | string ) }}\n\t\n\t\t\t\tINSERT INTO {{ ref_no_link(node.location.name, node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in source.columns %}\n\t\t\t\t\t\t\"{{ col.name }}\"\n\t\t\t\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t\t{% endif %}\n\t\n\t\t\tSELECT\n\t\t\t{% for col in source.columns %}\n                {{ get_source_transform(col) }} AS \"{{ col.name }}\"\n\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t{% endfor %}\n\t\n\t\t\t{{ source.join }}\n\t\n\t\t\t{% if config.insertStrategy in ['UNION', 'UNION ALL'] and not loop.last %}\n\t\t\t\t{{config.insertStrategy}}\n\t\t\t{% endif %}\n\t\n\t\t{% endfor %}\n\t\n\t{% if config.postSQL %}\n\t\t{{ stage('Post-SQL') }}\n\t\t{{ config.postSQL }}\n\t{% endif %}\n{% endif %}\n\n{% if config.testsEnabled %}\n\t{% for test in node.tests %}\n\t\t{% if test.runOrder == 'After' %}\n\t\t\t{{ test_stage(test.name, test.continueOnFailure) }}\n\t\t\t{{ test.templateString }}\n        {% endif %}\n\t{% endfor %}\n\n\t{% for column in columns %}\n\t\t{% for test in column.tests %}\n\t\t\t{{ test_stage(column.name + \": \" + test.name) }}\n\t\t\t{{ test.templateString }}\n\t\t{% endfor %}\n\t{% endfor %}\n{% endif %}\n"
+          templateString: |2
+
+                {% for test in node.tests if config.testsEnabled %}
+                    {% if test.runOrder == 'Before' %}
+                        {{ test_stage(test.name, test.continueOnFailure) }}
+                        {{ test.templateString }}
+                    {% endif %}
+                {% endfor %}
+
+            {% if node.materializationType == 'table' %}
+            	{% if config.preSQL %}
+            		{{ stage('Pre-SQL') }}
+            		{{ config.preSQL }}
+            	{% endif %}
+            	
+            	
+            	
+            		{% if config.truncateBefore %}
+            	
+            			{{ stage('Truncate Stage Table') }}
+            			TRUNCATE IF EXISTS {{ ref_no_link(node.location.name, node.name) }}
+            	
+            		{% endif %}
+            	
+            	
+            		{% if config.insertStrategy in ['UNION', 'UNION ALL'] %}
+            			{{ stage( config.insertStrategy + ' Sources' | string ) }}
+            			INSERT INTO {{ ref_no_link(node.location.name, node.name) }}
+            				(
+            					{% for col in columns %}
+            						"{{ col.name }}"
+            						{%- if not loop.last -%},{% endif %}
+            					{% endfor %}
+            				)
+            		{% endif %}
+            	
+            	
+            		{% for source in sources %}
+            	
+            			{% if config.insertStrategy == 'INSERT' %}
+            				{{ stage('Insert ' + source.name | string ) }}
+            	
+            				INSERT INTO {{ ref_no_link(node.location.name, node.name) }}
+            				(
+            					{% for col in source.columns %}
+            						"{{ col.name }}"
+            						{%- if not loop.last -%},{% endif %}
+            					{% endfor %}
+            				)
+            			{% endif %}
+            	
+            			SELECT
+            			{% for col in source.columns %}
+                            {{ get_source_transform(col) }} AS "{{ col.name }}"
+            				{%- if not loop.last -%}, {% endif %}
+            			{% endfor %}
+            	
+            			{{ source.join }}
+            	
+            			{% if config.insertStrategy in ['UNION', 'UNION ALL'] and not loop.last %}
+            				{{config.insertStrategy}}
+            			{% endif %}
+            	
+            		{% endfor %}
+            	
+            	{% if config.postSQL %}
+            		{{ stage('Post-SQL') }}
+            		{{ config.postSQL }}
+            	{% endif %}
+            {% endif %}
+
+            {% if config.testsEnabled %}
+            	{% for test in node.tests %}
+            		{% if test.runOrder == 'After' %}
+            			{{ test_stage(test.name, test.continueOnFailure) }}
+            			{{ test.templateString }}
+                    {% endif %}
+            	{% endfor %}
+
+            	{% for column in columns %}
+            		{% for test in column.tests %}
+            			{{ test_stage(column.name + ": " + test.name) }}
+            			{{ test.templateString }}
+            		{% endfor %}
+            	{% endfor %}
+            {% endif %}
     name: AAAAA
     version: 1
   StepType-Dimension:
@@ -860,9 +1281,356 @@ stepTypes:
           attributeName: isSystemUpdateDate
       templates:
         create:
-          templateString: "{% if node.materializationType == 'table' %}\n\t{{ stage('Create Dimension Table') }}\n\n\tCREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"{{ col.name }}\" {{ col.dataType }}\n\t\t\t{% if col.isSurrogateKey %}\n\t\t        identity\n\t\t\t{% endif %}\n\t\t\t{%- if not col.nullable %} NOT NULL\n\t\t\t\t{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}\n\t\t\t{% endif %}\n\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t)\n\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\n\n{% elif node.materializationType == 'view' %}\n\t{{ stage('Create Dimension View') }}\n\n\tCREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"{{ col.name }}\"\n\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t{% endfor %}\n\t)\n\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\tAS\n\t{% for source in sources %}\n\n\t\t{% if loop.first %}SELECT {% endif %}\n\n\t\t{% for col in source.columns %}\n\t\t\t{% if col.isSurrogateKey or col.isSystemUpdateDate or col.isSystemCreateDate %}\n                NULL\n\t\t\t{% else %}\n                {{ get_source_transform(col) }}\n\t\t\t{% endif %}\n\t\t\tAS \"{{ col.name }}\"\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t\t{{ source.join }}\n\n\t\t{% if not loop.last %} UNION ALL {% endif %}\n\t{% endfor %}\n\n{% endif %}\n"
+          templateString: |
+            {% if node.materializationType == 'table' %}
+            	{{ stage('Create Dimension Table') }}
+
+            	CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}
+            	(
+            		{% for col in columns %}
+            			"{{ col.name }}" {{ col.dataType }}
+            			{% if col.isSurrogateKey %}
+            		        identity
+            			{% endif %}
+            			{%- if not col.nullable %} NOT NULL
+            				{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}
+            			{% endif %}
+            			{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            	)
+            	{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+
+
+            {% elif node.materializationType == 'view' %}
+            	{{ stage('Create Dimension View') }}
+
+            	CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}
+            	(
+            		{% for col in columns %}
+            			"{{ col.name }}"
+            			{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            			{%- if not loop.last -%},{% endif %}
+            		{% endfor %}
+            	)
+            	{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+            	AS
+            	{% for source in sources %}
+
+            		{% if loop.first %}SELECT {% endif %}
+
+            		{% for col in source.columns %}
+            			{% if col.isSurrogateKey or col.isSystemUpdateDate or col.isSystemCreateDate %}
+                            NULL
+            			{% else %}
+                            {{ get_source_transform(col) }}
+            			{% endif %}
+            			AS "{{ col.name }}"
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            		{{ source.join }}
+
+            		{% if not loop.last %} UNION ALL {% endif %}
+            	{% endfor %}
+
+            {% endif %}
         run:
-          templateString: "\n{% set is_type_2 = columns | selectattr(\"isChangeTracking\") | list | length > 0 %}\n\n    {% for test in node.tests if config.testsEnabled %}\n        {% if test.runOrder == 'Before' %}\n            {{ test_stage(test.name, test.continueOnFailure) }}\n            {{ test.templateString }}\n        {% endif %}\n    {% endfor %}\n\n{% if node.materializationType == 'table' %}\n\n\t{% if config.preSQL %}\t\t\t\n\t\t{{ stage('Pre-SQL') }}\n\t\t{{ config.preSQL }}\n\t{% endif %}\n\t\n    {% if is_type_2 %}\n\n        {% for source in sources %}\n            {{ stage('MERGE ' + source.name | string) }}\n            MERGE INTO {{ ref_no_link(node.location.name, node.name) }} \"TGT\"\n            USING (\n            /* New Rows That Don't Exist */\n            SELECT\n            {% for col in source.columns if not col.isSurrogateKey %}\n                {% if col.isSystemVersion %}\n                    1\n                {% elif col.isSystemCurrentFlag %}\n                    'Y'\n                {% else %}\n                   {{ get_source_transform(col) }}\n                {% endif %}\n                AS \"{{ col.name }}\",\n            {% endfor %}\n                'INSERT_INITAL_VERSION_ROWS' AS \"DML_OPERATION\"\n            {{ source.join }}\n            LEFT JOIN {{ ref_no_link(node.location.name, node.name) }} \"DIM\" ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                    {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %}\n            WHERE\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                \"DIM\".\"{{ col.name }}\" IS NULL\n            {% endfor %}\n            UNION ALL\n            /* New Row Needing To Be Inserted Due To Type-2 Column Changes */\n            SELECT\n            {% for col in source.columns if not col.isSurrogateKey %}\n                {% if col.isSystemVersion %}\n                    \"DIM\".\"{{ col.name }}\" + 1\n                {% elif col.isSystemCurrentFlag %}\n                    'Y'\n                {% else %}\n                   {{ get_source_transform(col) }}\n                {% endif %}\n                AS \"{{ col.name }}\",\n            {% endfor %}\n                'INSERT_NEW_VERSION_ROWS' AS \"DML_OPERATION\"\n            {{ source.join }}\n            INNER JOIN {{ ref_no_link(node.location.name, node.name) }} \"DIM\" ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %}\n            WHERE \"DIM\".\"{{ get_value_by_column_attribute(\"isSystemCurrentFlag\") }}\" = 'Y'\n            {% for col in source.columns if (col.isChangeTracking == true) %}\n                {% if loop.first %}\n                    AND (\n                {% else %}\n                    OR\n                {% endif %}\n                ( NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST(\"DIM\".\"{{ col.name }}\" as STRING), '**NULL**') )\n                {% if loop.last %}\n                    )\n                {% endif %}\n            {% endfor %}\n            UNION ALL\n            /* Rows Needing To Be Expired Due To Type-2 Column Changes\n            In this case, only two columns are merged (version and end date) */\n            SELECT\n            {%- for col in source.columns if not col.isSurrogateKey %}\n                {% if col.isSystemEndDate %}\n                    DATEADD(MILLISECONDS, -1, CAST(CURRENT_TIMESTAMP AS TIMESTAMP))\n                {% elif col.isSystemCurrentFlag %}\n                    'N'\n                {% else %}\n                    \"DIM\".\"{{ col.name }}\"\n                {% endif %}\n                AS \"{{ col.name }}\",\n            {% endfor -%}\n                'update_expired_version_rows' AS \"DML_OPERATION\"\n            {{ source.join }}\n            INNER JOIN {{ ref_no_link(node.location.name, node.name) }} \"DIM\" ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %}\n            WHERE \"DIM\".\"{{ get_value_by_column_attribute(\"isSystemCurrentFlag\") }}\" = 'Y'\n            {% for col in source.columns if (col.isChangeTracking == true) %}\n                {% if loop.first %}\n                    AND (\n                {% else %}\n                    OR\n                {% endif %}\n                ( NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST(\"DIM\".\"{{ col.name }}\" as STRING), '**NULL**') )\n                {% if loop.last %}\n                    )\n                {% endif %}\n            {% endfor %}\n            UNION ALL\n            /* Rows Needing To Be Updated Due To Changes To Non-Type-2 source.columns\n            This case merges only when there are changes in non-type-2 column updates, but no changes in type-2 columns*/\n            SELECT\n            {%- for col in source.columns if not col.isSurrogateKey %}\n                {% if col.isSystemVersion or col.isSystemCreateDate or col.isSystemStartDate or col.isSystemEndDate %}\n                    \"DIM\".\"{{ col.name }}\"\n                {% elif col.isSystemCurrentFlag %}\n                    'Y'\n                {% else %}\n                    {{ get_source_transform(col) }}\n                {% endif %}\n                AS \"{{ col.name }}\",\n            {% endfor -%}\n                'UPDATE_NON_TYPE2_ROWS' AS \"DML_OPERATION\"\n            {{ source.join }}\n            INNER JOIN {{ ref_no_link(node.location.name, node.name) }} \"DIM\" ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %}\n            WHERE \"DIM\".\"{{ get_value_by_column_attribute(\"isSystemCurrentFlag\") }}\" = 'Y'\n            AND (\n            {% for col in source.columns if (col.isChangeTracking) -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %} )\n            {% for col in source.columns if not (   col.isBusinessKey or\n                                                    col.isChangeTracking or\n                                                    col.isSurrogateKey or\n                                                    col.isSystemVersion or\n                                                    col.isSystemCurrentFlag or\n                                                    col.isSystemStartDate or\n                                                    col.isSystemEndDate or\n                                                    col.isSystemUpdateDate or\n                                                    col.isSystemCreateDate) -%}\n                {% if loop.first %}\n                    AND (\n                {% endif %}\n                {% if not loop.first %}\n                    OR\n                {% endif %}\n                NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST(\"DIM\".\"{{ col.name }}\" as STRING), '**NULL**')\n                {% if loop.last %}\n                    )\n                {% endif %}\n            {% endfor %}\n        ) AS \"SRC\"\n        ON\n        {% for col in source.columns if col.isBusinessKey -%}\n            {% if not loop.first %}\n                AND\n            {% endif %}\n            \"TGT\".\"{{ col.name }}\" = \"SRC\".\"{{ col.name }}\"\n        {% endfor %}\n        AND \"TGT\".\"{{ get_value_by_column_attribute(\"isSystemVersion\") }}\" = \"SRC\".\"{{ get_value_by_column_attribute(\"isSystemVersion\") }}\"\n        WHEN MATCHED THEN UPDATE SET\n        {%- for col in source.columns if not (col.isBusinessKey or col.isSurrogateKey or col.isSystemCreateDate) %}\n            \"TGT\".\"{{ col.name }}\" = \"SRC\".\"{{ col.name }}\"\n            {% if not loop.last %}, {% endif %}\n        {% endfor -%}\n        WHEN NOT MATCHED THEN INSERT (\n        {%- for col in source.columns if not col.isSurrogateKey %}\n            \"{{ col.name }}\"\n            {% if not loop.last %}, {% endif %}\n        {% endfor -%}\n        )\n        VALUES (\n        {%- for col in source.columns if not col.isSurrogateKey %}\n            \"SRC\".\"{{ col.name }}\"\n            {% if not loop.last %}, {% endif %}\n        {% endfor -%}\n        )\n\n    {% endfor %}\n\n\n\n    {% else %}\n        {% for source in sources %}\n            {{ stage('MERGE ' + source.name | string ) }}\n            MERGE INTO {{ ref_no_link(node.location.name, node.name) }} \"TGT\"\n            USING (\n                SELECT\n                {% for col in source.columns if not col.isSurrogateKey %}\n                    {% if col.isSystemVersion %}\n                    \t1\n                    {% elif col.isSystemCurrentFlag %}\n                    \t'Y'\n                    {% else %}\n                        {{ get_source_transform(col) }}\n                    {% endif %}\n                    AS \"{{ col.name }}\"\n                    {%- if not loop.last %}, {% endif %}\n                {% endfor %}\n                {{ source.join }})\n                AS \"SRC\"\n            ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                \"SRC\".\"{{ col.name }}\" = \"TGT\".\"{{ col.name }}\"\n            {% endfor %}\n            WHEN MATCHED\n            {% for col in source.columns if not (   col.isBusinessKey or\n                                                    col.isSurrogateKey or\n                                                    col.isSystemVersion or\n                                                    col.isSystemCurrentFlag or\n                                                    col.isSystemStartDate or\n                                                    col.isSystemEndDate or\n                                                    col.isSystemUpdateDate or\n                                                    col.isSystemCreateDate) %}\n                {% if loop.first %}\n                    AND (\n                {% else %}\n                    OR\n                {% endif %}\n                NVL( CAST(\"SRC\".\"{{ col.name }}\" as STRING), '**NULL**') <> NVL( CAST(\"TGT\".\"{{ col.name }}\" as STRING), '**NULL**')\n                {% if loop.last %}\n                    )\n                {% endif %}\n            {% endfor %}\n            THEN UPDATE SET\n            {%- for col in source.columns if not (  col.isBusinessKey or\n                                                    col.isSurrogateKey or\n                                                    col.isSystemVersion or\n                                                    col.isSystemCurrentFlag or\n                                                    col.isSystemStartDate or\n                                                    col.isSystemEndDate or\n                                                    col.isSystemCreateDate) %}\n                    \"TGT\".\"{{ col.name }}\" = \"SRC\".\"{{ col.name }}\"\n                {% if not loop.last %}, {% endif %}\n            {% endfor %}\n            WHEN NOT MATCHED THEN\n            INSERT (\n            {%- for col in source.columns if not col.isSurrogateKey %}\n                \"{{ col.name }}\"\n                {% if not loop.last %}, {% endif %}\n            {% endfor -%}\n            )\n            VALUES (\n            {%- for col in source.columns if not col.isSurrogateKey %}\n                \"SRC\".\"{{ col.name }}\"\n                {% if not loop.last %}, {% endif %}\n            {% endfor -%}\n            )\n        {% endfor %}\n    {% endif %}\n\t\n\t{% if config.postSQL %}\t\t\t\n\t\t{{ stage('Post-SQL') }}\n\t\t{{ config.postSQL }}\n\t{% endif %}\n{% endif %}\n\n{% if config.testsEnabled %}\n\t{% for test in node.tests %}\n\t\t{% if test.runOrder == 'After' %}\n\t\t\t{{ test_stage(test.name, test.continueOnFailure) }}\n\t\t\t{{ test.templateString }}\n        {% endif %}\n\t{% endfor %}\n\n\t{% for column in columns %}\n\t\t{% for test in column.tests %}\n\t\t\t{{ test_stage(column.name + \": \" + test.name) }}\n\t\t\t{{ test.templateString }}\n\t\t{% endfor %}\n\t{% endfor %}\n{% endif %}\n"
+          templateString: |
+
+            {% set is_type_2 = columns | selectattr("isChangeTracking") | list | length > 0 %}
+
+                {% for test in node.tests if config.testsEnabled %}
+                    {% if test.runOrder == 'Before' %}
+                        {{ test_stage(test.name, test.continueOnFailure) }}
+                        {{ test.templateString }}
+                    {% endif %}
+                {% endfor %}
+
+            {% if node.materializationType == 'table' %}
+
+            	{% if config.preSQL %}			
+            		{{ stage('Pre-SQL') }}
+            		{{ config.preSQL }}
+            	{% endif %}
+            	
+                {% if is_type_2 %}
+
+                    {% for source in sources %}
+                        {{ stage('MERGE ' + source.name | string) }}
+                        MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
+                        USING (
+                        /* New Rows That Don't Exist */
+                        SELECT
+                        {% for col in source.columns if not col.isSurrogateKey %}
+                            {% if col.isSystemVersion %}
+                                1
+                            {% elif col.isSystemCurrentFlag %}
+                                'Y'
+                            {% else %}
+                               {{ get_source_transform(col) }}
+                            {% endif %}
+                            AS "{{ col.name }}",
+                        {% endfor %}
+                            'INSERT_INITAL_VERSION_ROWS' AS "DML_OPERATION"
+                        {{ source.join }}
+                        LEFT JOIN {{ ref_no_link(node.location.name, node.name) }} "DIM" ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                                {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %}
+                        WHERE
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            "DIM"."{{ col.name }}" IS NULL
+                        {% endfor %}
+                        UNION ALL
+                        /* New Row Needing To Be Inserted Due To Type-2 Column Changes */
+                        SELECT
+                        {% for col in source.columns if not col.isSurrogateKey %}
+                            {% if col.isSystemVersion %}
+                                "DIM"."{{ col.name }}" + 1
+                            {% elif col.isSystemCurrentFlag %}
+                                'Y'
+                            {% else %}
+                               {{ get_source_transform(col) }}
+                            {% endif %}
+                            AS "{{ col.name }}",
+                        {% endfor %}
+                            'INSERT_NEW_VERSION_ROWS' AS "DML_OPERATION"
+                        {{ source.join }}
+                        INNER JOIN {{ ref_no_link(node.location.name, node.name) }} "DIM" ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %}
+                        WHERE "DIM"."{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+                        {% for col in source.columns if (col.isChangeTracking == true) %}
+                            {% if loop.first %}
+                                AND (
+                            {% else %}
+                                OR
+                            {% endif %}
+                            ( NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST("DIM"."{{ col.name }}" as STRING), '**NULL**') )
+                            {% if loop.last %}
+                                )
+                            {% endif %}
+                        {% endfor %}
+                        UNION ALL
+                        /* Rows Needing To Be Expired Due To Type-2 Column Changes
+                        In this case, only two columns are merged (version and end date) */
+                        SELECT
+                        {%- for col in source.columns if not col.isSurrogateKey %}
+                            {% if col.isSystemEndDate %}
+                                DATEADD(MILLISECONDS, -1, CAST(CURRENT_TIMESTAMP AS TIMESTAMP))
+                            {% elif col.isSystemCurrentFlag %}
+                                'N'
+                            {% else %}
+                                "DIM"."{{ col.name }}"
+                            {% endif %}
+                            AS "{{ col.name }}",
+                        {% endfor -%}
+                            'update_expired_version_rows' AS "DML_OPERATION"
+                        {{ source.join }}
+                        INNER JOIN {{ ref_no_link(node.location.name, node.name) }} "DIM" ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %}
+                        WHERE "DIM"."{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+                        {% for col in source.columns if (col.isChangeTracking == true) %}
+                            {% if loop.first %}
+                                AND (
+                            {% else %}
+                                OR
+                            {% endif %}
+                            ( NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST("DIM"."{{ col.name }}" as STRING), '**NULL**') )
+                            {% if loop.last %}
+                                )
+                            {% endif %}
+                        {% endfor %}
+                        UNION ALL
+                        /* Rows Needing To Be Updated Due To Changes To Non-Type-2 source.columns
+                        This case merges only when there are changes in non-type-2 column updates, but no changes in type-2 columns*/
+                        SELECT
+                        {%- for col in source.columns if not col.isSurrogateKey %}
+                            {% if col.isSystemVersion or col.isSystemCreateDate or col.isSystemStartDate or col.isSystemEndDate %}
+                                "DIM"."{{ col.name }}"
+                            {% elif col.isSystemCurrentFlag %}
+                                'Y'
+                            {% else %}
+                                {{ get_source_transform(col) }}
+                            {% endif %}
+                            AS "{{ col.name }}",
+                        {% endfor -%}
+                            'UPDATE_NON_TYPE2_ROWS' AS "DML_OPERATION"
+                        {{ source.join }}
+                        INNER JOIN {{ ref_no_link(node.location.name, node.name) }} "DIM" ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %}
+                        WHERE "DIM"."{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+                        AND (
+                        {% for col in source.columns if (col.isChangeTracking) -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %} )
+                        {% for col in source.columns if not (   col.isBusinessKey or
+                                                                col.isChangeTracking or
+                                                                col.isSurrogateKey or
+                                                                col.isSystemVersion or
+                                                                col.isSystemCurrentFlag or
+                                                                col.isSystemStartDate or
+                                                                col.isSystemEndDate or
+                                                                col.isSystemUpdateDate or
+                                                                col.isSystemCreateDate) -%}
+                            {% if loop.first %}
+                                AND (
+                            {% endif %}
+                            {% if not loop.first %}
+                                OR
+                            {% endif %}
+                            NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST("DIM"."{{ col.name }}" as STRING), '**NULL**')
+                            {% if loop.last %}
+                                )
+                            {% endif %}
+                        {% endfor %}
+                    ) AS "SRC"
+                    ON
+                    {% for col in source.columns if col.isBusinessKey -%}
+                        {% if not loop.first %}
+                            AND
+                        {% endif %}
+                        "TGT"."{{ col.name }}" = "SRC"."{{ col.name }}"
+                    {% endfor %}
+                    AND "TGT"."{{ get_value_by_column_attribute("isSystemVersion") }}" = "SRC"."{{ get_value_by_column_attribute("isSystemVersion") }}"
+                    WHEN MATCHED THEN UPDATE SET
+                    {%- for col in source.columns if not (col.isBusinessKey or col.isSurrogateKey or col.isSystemCreateDate) %}
+                        "TGT"."{{ col.name }}" = "SRC"."{{ col.name }}"
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor -%}
+                    WHEN NOT MATCHED THEN INSERT (
+                    {%- for col in source.columns if not col.isSurrogateKey %}
+                        "{{ col.name }}"
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor -%}
+                    )
+                    VALUES (
+                    {%- for col in source.columns if not col.isSurrogateKey %}
+                        "SRC"."{{ col.name }}"
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor -%}
+                    )
+
+                {% endfor %}
+
+
+
+                {% else %}
+                    {% for source in sources %}
+                        {{ stage('MERGE ' + source.name | string ) }}
+                        MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
+                        USING (
+                            SELECT
+                            {% for col in source.columns if not col.isSurrogateKey %}
+                                {% if col.isSystemVersion %}
+                                	1
+                                {% elif col.isSystemCurrentFlag %}
+                                	'Y'
+                                {% else %}
+                                    {{ get_source_transform(col) }}
+                                {% endif %}
+                                AS "{{ col.name }}"
+                                {%- if not loop.last %}, {% endif %}
+                            {% endfor %}
+                            {{ source.join }})
+                            AS "SRC"
+                        ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            "SRC"."{{ col.name }}" = "TGT"."{{ col.name }}"
+                        {% endfor %}
+                        WHEN MATCHED
+                        {% for col in source.columns if not (   col.isBusinessKey or
+                                                                col.isSurrogateKey or
+                                                                col.isSystemVersion or
+                                                                col.isSystemCurrentFlag or
+                                                                col.isSystemStartDate or
+                                                                col.isSystemEndDate or
+                                                                col.isSystemUpdateDate or
+                                                                col.isSystemCreateDate) %}
+                            {% if loop.first %}
+                                AND (
+                            {% else %}
+                                OR
+                            {% endif %}
+                            NVL( CAST("SRC"."{{ col.name }}" as STRING), '**NULL**') <> NVL( CAST("TGT"."{{ col.name }}" as STRING), '**NULL**')
+                            {% if loop.last %}
+                                )
+                            {% endif %}
+                        {% endfor %}
+                        THEN UPDATE SET
+                        {%- for col in source.columns if not (  col.isBusinessKey or
+                                                                col.isSurrogateKey or
+                                                                col.isSystemVersion or
+                                                                col.isSystemCurrentFlag or
+                                                                col.isSystemStartDate or
+                                                                col.isSystemEndDate or
+                                                                col.isSystemCreateDate) %}
+                                "TGT"."{{ col.name }}" = "SRC"."{{ col.name }}"
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                        WHEN NOT MATCHED THEN
+                        INSERT (
+                        {%- for col in source.columns if not col.isSurrogateKey %}
+                            "{{ col.name }}"
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor -%}
+                        )
+                        VALUES (
+                        {%- for col in source.columns if not col.isSurrogateKey %}
+                            "SRC"."{{ col.name }}"
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor -%}
+                        )
+                    {% endfor %}
+                {% endif %}
+            	
+            	{% if config.postSQL %}			
+            		{{ stage('Post-SQL') }}
+            		{{ config.postSQL }}
+            	{% endif %}
+            {% endif %}
+
+            {% if config.testsEnabled %}
+            	{% for test in node.tests %}
+            		{% if test.runOrder == 'After' %}
+            			{{ test_stage(test.name, test.continueOnFailure) }}
+            			{{ test.templateString }}
+                    {% endif %}
+            	{% endfor %}
+
+            	{% for column in columns %}
+            		{% for test in column.tests %}
+            			{{ test_stage(column.name + ": " + test.name) }}
+            			{{ test.templateString }}
+            		{% endfor %}
+            	{% endfor %}
+            {% endif %}
     name: Dimension
     version: 1
   StepType-Fact:
@@ -1147,9 +1915,108 @@ stepTypes:
           attributeName: isSystemRecordSource
       templates:
         create:
-          templateString: "{% if node.materializationType == 'table' %}\n\t\t\t\t{{ stage('Create Hub Table') }}\n\t\t\t\n\t\t\t\tCREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in columns %}\n\t\t\t\t\t\t\"{{ col.name }}\" {{ col.dataType }}\n\t\t\t\t\t\t{%- if not col.nullable %} NOT NULL\n\t\t\t\t\t\t\t{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}\n\t\t\t\t\t\t{% endif %}\n\t\t\t\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t\t\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\t\t\t\n\t\t\t{% endif %}"
+          templateString: |-
+            {% if node.materializationType == 'table' %}
+            				{{ stage('Create Hub Table') }}
+            			
+            				CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}
+            				(
+            					{% for col in columns %}
+            						"{{ col.name }}" {{ col.dataType }}
+            						{%- if not col.nullable %} NOT NULL
+            							{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}
+            						{% endif %}
+            						{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            						{%- if not loop.last -%}, {% endif %}
+            					{% endfor %}
+            				)
+            				{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+            			
+            			{% endif %}
         run:
-          templateString: "\n    {% for test in node.tests if config.testsEnabled %}\n        {% if test.runOrder == 'Before' %}\n            {{ test_stage(test.name, test.continueOnFailure) }}\n            {{ test.templateString }}\n        {% endif %}\n    {% endfor %}\n\n{% if node.materializationType == 'table' %}\n\t{% if config.preSQL %}\n\t\t{{ stage('Pre-SQL') }}\n\t\t{{ config.preSQL }}\n\t{% endif %}\n\n\n\t{{ stage('Merge Hub') }}\n\tMERGE INTO {{ ref_no_link(node.location.name, node.name) }} \"TGT\" USING\n\t(\n\t\t{% for source in sources %}\n\t\tSELECT\n\t\t{% for col in source.columns %}\n            {{ get_source_transform(col) }} AS \"{{ col.name }}\"\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\n\t\t{{ source.join }}\n\n\t\t{% if not loop.last %}\n\t\t\t{{ config.insertStrategy }}\n\t\t{% endif %}\n\t{% endfor %}\n\t)\n\tAS \"SRC\"\n\tON\n\t{% for col in sources[0].columns if (col.sourceColumns[0] \n                                        and col.sourceColumns[0].column \n                                        and col.sourceColumns[0].column.isHubHash\n                                        ) -%}\n\t\t{% if not loop.first %}\n\t\t\tAND\n\t\t{% endif %}\n\t\t\"SRC\".\"{{ col.name }}\" = \"TGT\".\"{{ col.name }}\"\n\t{% endfor %}\n\tWHEN NOT MATCHED THEN\n\tINSERT\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"{{ col.name }}\"\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t) VALUES\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"SRC\".\"{{ col.name }}\"\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t)\n\n\n\t{% if config.postSQL %}\n\t\t{{ stage('Post-SQL') }}\n\t\t{{ config.postSQL }}\n\t{% endif %}\n\t\n{% endif %}\n\n{% if config.testsEnabled %}\n\t{% for test in node.tests %}\n\t\t{% if test.runOrder == 'After' %}\n\t\t\t{{ test_stage(test.name, test.continueOnFailure) }}\n\t\t\t{{ test.templateString }}\n        {% endif %}\n\t{% endfor %}\n\n\t{% for column in columns %}\n\t\t{% for test in column.tests %}\n\t\t\t{{ test_stage(column.name + \": \" + test.name) }}\n\t\t\t{{ test.templateString }}\n\t\t{% endfor %}\n\t{% endfor %}\n{% endif %}\n\t\t\t"
+          templateString: |2-
+
+                {% for test in node.tests if config.testsEnabled %}
+                    {% if test.runOrder == 'Before' %}
+                        {{ test_stage(test.name, test.continueOnFailure) }}
+                        {{ test.templateString }}
+                    {% endif %}
+                {% endfor %}
+
+            {% if node.materializationType == 'table' %}
+            	{% if config.preSQL %}
+            		{{ stage('Pre-SQL') }}
+            		{{ config.preSQL }}
+            	{% endif %}
+
+
+            	{{ stage('Merge Hub') }}
+            	MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT" USING
+            	(
+            		{% for source in sources %}
+            		SELECT
+            		{% for col in source.columns %}
+                        {{ get_source_transform(col) }} AS "{{ col.name }}"
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+
+            		{{ source.join }}
+
+            		{% if not loop.last %}
+            			{{ config.insertStrategy }}
+            		{% endif %}
+            	{% endfor %}
+            	)
+            	AS "SRC"
+            	ON
+            	{% for col in sources[0].columns if (col.sourceColumns[0] 
+                                                    and col.sourceColumns[0].column 
+                                                    and col.sourceColumns[0].column.isHubHash
+                                                    ) -%}
+            		{% if not loop.first %}
+            			AND
+            		{% endif %}
+            		"SRC"."{{ col.name }}" = "TGT"."{{ col.name }}"
+            	{% endfor %}
+            	WHEN NOT MATCHED THEN
+            	INSERT
+            	(
+            		{% for col in columns %}
+            			"{{ col.name }}"
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            	) VALUES
+            	(
+            		{% for col in columns %}
+            			"SRC"."{{ col.name }}"
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            	)
+
+
+            	{% if config.postSQL %}
+            		{{ stage('Post-SQL') }}
+            		{{ config.postSQL }}
+            	{% endif %}
+            	
+            {% endif %}
+
+            {% if config.testsEnabled %}
+            	{% for test in node.tests %}
+            		{% if test.runOrder == 'After' %}
+            			{{ test_stage(test.name, test.continueOnFailure) }}
+            			{{ test.templateString }}
+                    {% endif %}
+            	{% endfor %}
+
+            	{% for column in columns %}
+            		{% for test in column.tests %}
+            			{{ test_stage(column.name + ": " + test.name) }}
+            			{{ test.templateString }}
+            		{% endfor %}
+            	{% endfor %}
+            {% endif %}
+            			
     name: Hub
     version: 1
   StepType-Link:
@@ -1214,9 +2081,107 @@ stepTypes:
           attributeName: isSystemRecordSource
       templates:
         create:
-          templateString: "{% if node.materializationType == 'table' %}\n\t\t\t\t{{ stage('Create Link Table') }}\n\t\t\t\n\t\t\t\tCREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in columns %}\n\t\t\t\t\t\t\"{{ col.name }}\" {{ col.dataType }}\n\t\t\t\t\t\t{%- if not col.nullable %} NOT NULL\n\t\t\t\t\t\t\t{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}\n\t\t\t\t\t\t{% endif %}\n\t\t\t\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t\t\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\t\t\t\n\t\t\t{% endif %}"
+          templateString: |-
+            {% if node.materializationType == 'table' %}
+            				{{ stage('Create Link Table') }}
+            			
+            				CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}
+            				(
+            					{% for col in columns %}
+            						"{{ col.name }}" {{ col.dataType }}
+            						{%- if not col.nullable %} NOT NULL
+            							{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}
+            						{% endif %}
+            						{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            						{%- if not loop.last -%}, {% endif %}
+            					{% endfor %}
+            				)
+            				{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+            			
+            			{% endif %}
         run:
-          templateString: "\n    {% for test in node.tests if config.testsEnabled %}\n        {% if test.runOrder == 'Before' %}\n            {{ test_stage(test.name, test.continueOnFailure) }}\n            {{ test.templateString }}\n        {% endif %}\n    {% endfor %}\n\n{% if node.materializationType == 'table' %}\n\t{% if config.preSQL %}\n\t\t{{ stage('Pre-SQL') }}\n\t\t{{ config.preSQL }}\n\t\n\t{% endif %}\n\n\t\t\t\n\t{{ stage('Merge Link') }}\n\tMERGE INTO {{ ref_no_link(node.location.name, node.name) }} \"TGT\" USING\n\t(\n\t\t{% for source in sources %}\n\t\tSELECT\n\t\t{% for col in source.columns %}\n            {{ get_source_transform(col) }} AS \"{{ col.name }}\"\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\n\t\t{{ source.join }}\n\n\t\t{% if not loop.last %}\n\t\t\t{{ config.insertStrategy }}\n\t\t{% endif %}\n\t{% endfor %}\n\t)\n\tAS \"SRC\"\n\tON\n\t{% for col in sources[0].columns if (col.sourceColumns[0] \n                                        and col.sourceColumns[0].column \n                                        and col.sourceColumns[0].column.isLinkHash\n                                        ) -%}\n\t\t{% if not loop.first %}\n\t\t\tAND\n\t\t{% endif %}\n\t\t\"SRC\".\"{{ col.name }}\" = \"TGT\".\"{{ col.name }}\"\n\t{% endfor %}\n\tWHEN NOT MATCHED THEN\n\tINSERT\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"{{ col.name }}\"\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t) VALUES\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"SRC\".\"{{ col.name }}\"\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t)\n\n\t{% if config.postSQL %}\n\t\t{{ stage('Post-SQL') }}\n\t\t{{ config.postSQL }}\t\n\t{% endif %}\n{% endif %}\n\n{% if config.testsEnabled %}\n\t{% for test in node.tests %}\n\t\t{% if test.runOrder == 'After' %}\n\t\t\t{{ test_stage(test.name, test.continueOnFailure) }}\n\t\t\t{{ test.templateString }}\n        {% endif %}\n\t{% endfor %}\n\n\t{% for column in columns %}\n\t\t{% for test in column.tests %}\n\t\t\t{{ test_stage(column.name + \": \" + test.name) }}\n\t\t\t{{ test.templateString }}\n\t\t{% endfor %}\n\t{% endfor %}\n{% endif %}\n\t\t\t"
+          templateString: |2-
+
+                {% for test in node.tests if config.testsEnabled %}
+                    {% if test.runOrder == 'Before' %}
+                        {{ test_stage(test.name, test.continueOnFailure) }}
+                        {{ test.templateString }}
+                    {% endif %}
+                {% endfor %}
+
+            {% if node.materializationType == 'table' %}
+            	{% if config.preSQL %}
+            		{{ stage('Pre-SQL') }}
+            		{{ config.preSQL }}
+            	
+            	{% endif %}
+
+            			
+            	{{ stage('Merge Link') }}
+            	MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT" USING
+            	(
+            		{% for source in sources %}
+            		SELECT
+            		{% for col in source.columns %}
+                        {{ get_source_transform(col) }} AS "{{ col.name }}"
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+
+            		{{ source.join }}
+
+            		{% if not loop.last %}
+            			{{ config.insertStrategy }}
+            		{% endif %}
+            	{% endfor %}
+            	)
+            	AS "SRC"
+            	ON
+            	{% for col in sources[0].columns if (col.sourceColumns[0] 
+                                                    and col.sourceColumns[0].column 
+                                                    and col.sourceColumns[0].column.isLinkHash
+                                                    ) -%}
+            		{% if not loop.first %}
+            			AND
+            		{% endif %}
+            		"SRC"."{{ col.name }}" = "TGT"."{{ col.name }}"
+            	{% endfor %}
+            	WHEN NOT MATCHED THEN
+            	INSERT
+            	(
+            		{% for col in columns %}
+            			"{{ col.name }}"
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            	) VALUES
+            	(
+            		{% for col in columns %}
+            			"SRC"."{{ col.name }}"
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            	)
+
+            	{% if config.postSQL %}
+            		{{ stage('Post-SQL') }}
+            		{{ config.postSQL }}	
+            	{% endif %}
+            {% endif %}
+
+            {% if config.testsEnabled %}
+            	{% for test in node.tests %}
+            		{% if test.runOrder == 'After' %}
+            			{{ test_stage(test.name, test.continueOnFailure) }}
+            			{{ test.templateString }}
+                    {% endif %}
+            	{% endfor %}
+
+            	{% for column in columns %}
+            		{% for test in column.tests %}
+            			{{ test_stage(column.name + ": " + test.name) }}
+            			{{ test.templateString }}
+            		{% endfor %}
+            	{% endfor %}
+            {% endif %}
+            			
     name: Link
     version: 1
   StepType-Satellite:
@@ -1281,9 +2246,106 @@ stepTypes:
           attributeName: isSystemRecordSource
       templates:
         create:
-          templateString: "{% if node.materializationType == 'table' %}\n\t\t\t\t{{ stage('Create Satellite Table') }}\n\t\t\t\n\t\t\t\tCREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in columns %}\n\t\t\t\t\t\t\"{{ col.name }}\" {{ col.dataType }}\n\t\t\t\t\t\t{%- if not col.nullable %} NOT NULL\n\t\t\t\t\t\t\t{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}\n\t\t\t\t\t\t{% endif %}\n\t\t\t\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t\t\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\t\t\t\n\t\t\t{% endif %}"
+          templateString: |-
+            {% if node.materializationType == 'table' %}
+            				{{ stage('Create Satellite Table') }}
+            			
+            				CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}
+            				(
+            					{% for col in columns %}
+            						"{{ col.name }}" {{ col.dataType }}
+            						{%- if not col.nullable %} NOT NULL
+            							{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}
+            						{% endif %}
+            						{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            						{%- if not loop.last -%}, {% endif %}
+            					{% endfor %}
+            				)
+            				{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+            			
+            			{% endif %}
         run:
-          templateString: "\n    {% for test in node.tests if config.testsEnabled %}\n        {% if test.runOrder == 'Before' %}\n            {{ test_stage(test.name, test.continueOnFailure) }}\n            {{ test.templateString }}\n        {% endif %}\n    {% endfor %}\n\n{% if node.materializationType == 'table' %}\n\t\t{% if config.preSQL %}\n\t\t\t{{ stage('Pre-SQL') }}\n\t\t\t{{ config.preSQL }}\n\t\t{% endif %}\n\t\n\t\t{{ stage('Merge Satellite') }}\n\t\tMERGE INTO {{ ref_no_link(node.location.name, node.name) }} \"TGT\" USING\n\t\t(\n\t\t\t{% for source in sources %}\n\t\t\tSELECT\n\t\t\t{% for col in source.columns %}\n                {{ get_source_transform(col) }} AS \"{{ col.name }}\"\n\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t{% endfor %}\n\t\n\t\t\t{{ source.join }}\n\t\n\t\t\t{% if not loop.last %}\n\t\t\t\t{{ config.insertStrategy }}\n\t\t\t{% endif %}\n\t\t{% endfor %}\n\t\t)\n\t\tAS \"SRC\"\n\t\tON\n\t\t{% for col in sources[0].columns if (col.sourceColumns[0] \n                                            and col.sourceColumns[0].column \n                                            and col.sourceColumns[0].column.isChangeHash\n                                            ) -%}\n\t\t\t{% if not loop.first %}\n\t\t\t\tAND\n\t\t\t{% endif %}\n\t\t\t\"SRC\".\"{{ col.name }}\" = \"TGT\".\"{{ col.name }}\"\n\t\t{% endfor %}\n\t\tWHEN NOT MATCHED THEN\n\t\tINSERT\n\t\t(\n\t\t\t{% for col in columns %}\n\t\t\t\t\"{{ col.name }}\"\n\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t{% endfor %}\n\t\t) VALUES\n\t\t(\n\t\t\t{% for col in columns %}\n\t\t\t\t\"SRC\".\"{{ col.name }}\"\n\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t{% endfor %}\n\t\t)\n\t\n\t{% if config.postSQL %}\n\t\t{{ stage('Post-SQL') }}\n\t\t{{ config.postSQL }}\t\n\t{% endif %}\n\t\n{% endif %}\n\n{% if config.testsEnabled %}\n\t{% for test in node.tests %}\n\t\t{% if test.runOrder == 'After' %}\n\t\t\t{{ test_stage(test.name, test.continueOnFailure) }}\n\t\t\t{{ test.templateString }}\n        {% endif %}\n\t{% endfor %}\n\n\t{% for column in columns %}\n\t\t{% for test in column.tests %}\n\t\t\t{{ test_stage(column.name + \": \" + test.name) }}\n\t\t\t{{ test.templateString }}\n\t\t{% endfor %}\n\t{% endfor %}\n{% endif %}\n\t\t\t"
+          templateString: |2-
+
+                {% for test in node.tests if config.testsEnabled %}
+                    {% if test.runOrder == 'Before' %}
+                        {{ test_stage(test.name, test.continueOnFailure) }}
+                        {{ test.templateString }}
+                    {% endif %}
+                {% endfor %}
+
+            {% if node.materializationType == 'table' %}
+            		{% if config.preSQL %}
+            			{{ stage('Pre-SQL') }}
+            			{{ config.preSQL }}
+            		{% endif %}
+            	
+            		{{ stage('Merge Satellite') }}
+            		MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT" USING
+            		(
+            			{% for source in sources %}
+            			SELECT
+            			{% for col in source.columns %}
+                            {{ get_source_transform(col) }} AS "{{ col.name }}"
+            				{%- if not loop.last -%}, {% endif %}
+            			{% endfor %}
+            	
+            			{{ source.join }}
+            	
+            			{% if not loop.last %}
+            				{{ config.insertStrategy }}
+            			{% endif %}
+            		{% endfor %}
+            		)
+            		AS "SRC"
+            		ON
+            		{% for col in sources[0].columns if (col.sourceColumns[0] 
+                                                        and col.sourceColumns[0].column 
+                                                        and col.sourceColumns[0].column.isChangeHash
+                                                        ) -%}
+            			{% if not loop.first %}
+            				AND
+            			{% endif %}
+            			"SRC"."{{ col.name }}" = "TGT"."{{ col.name }}"
+            		{% endfor %}
+            		WHEN NOT MATCHED THEN
+            		INSERT
+            		(
+            			{% for col in columns %}
+            				"{{ col.name }}"
+            				{%- if not loop.last -%}, {% endif %}
+            			{% endfor %}
+            		) VALUES
+            		(
+            			{% for col in columns %}
+            				"SRC"."{{ col.name }}"
+            				{%- if not loop.last -%}, {% endif %}
+            			{% endfor %}
+            		)
+            	
+            	{% if config.postSQL %}
+            		{{ stage('Post-SQL') }}
+            		{{ config.postSQL }}	
+            	{% endif %}
+            	
+            {% endif %}
+
+            {% if config.testsEnabled %}
+            	{% for test in node.tests %}
+            		{% if test.runOrder == 'After' %}
+            			{{ test_stage(test.name, test.continueOnFailure) }}
+            			{{ test.templateString }}
+                    {% endif %}
+            	{% endfor %}
+
+            	{% for column in columns %}
+            		{% for test in column.tests %}
+            			{{ test_stage(column.name + ": " + test.name) }}
+            			{{ test.templateString }}
+            		{% endfor %}
+            	{% endfor %}
+            {% endif %}
+            			
     name: Satellite
     version: 1
   StepType-Source:
@@ -1370,9 +2432,147 @@ stepTypes:
             isRequired: false
       templates:
         create:
-          templateString: "{% if node.override.create.enabled %}\n\t\n\t{{ node.override.create.script }}\n\n{% elif node.materializationType == 'table' %}\n\t{{ stage('Create Stage Table') }}\n\n\tCREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}\n\t(\n\t\t{% for col in columns %}\n\t\t\t\"{{ col.name }}\" {{ col.dataType }}\n\t\t\t{%- if not col.nullable %} NOT NULL\n\t\t\t\t{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}\n\t\t\t{% endif %}\n\t\t\t{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t{% endfor %}\n\t)\n\t{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\n\n{% elif node.materializationType == 'view' %}\n    {{ stage('Create Stage View') }}\n\n    CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}\n    (\n        {% for col in columns %}\n            \"{{ col.name }}\"\n            {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n    )\n    {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n    AS\n    {% for source in sources %}\n        SELECT\n        {% for col in source.columns %}\n            {{ get_source_transform(col) }} AS \"{{ col.name }}\"\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n\n        {{ source.join }}\n\n        {% if not loop.last %}\n            {% if config.insertStrategy in ['UNION', 'UNION ALL'] %}\n                {{ config.insertStrategy }}\n            {% else %}\n                UNION\n            {% endif %}\n        {% endif %}\n    {% endfor %}\n\n{% endif %}\n"
+          templateString: |
+            {% if node.override.create.enabled %}
+            	
+            	{{ node.override.create.script }}
+
+            {% elif node.materializationType == 'table' %}
+            	{{ stage('Create Stage Table') }}
+
+            	CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}
+            	(
+            		{% for col in columns %}
+            			"{{ col.name }}" {{ col.dataType }}
+            			{%- if not col.nullable %} NOT NULL
+            				{%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}
+            			{% endif %}
+            			{%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+            			{%- if not loop.last -%}, {% endif %}
+            		{% endfor %}
+            	)
+            	{%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+
+
+            {% elif node.materializationType == 'view' %}
+                {{ stage('Create Stage View') }}
+
+                CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}
+                (
+                    {% for col in columns %}
+                        "{{ col.name }}"
+                        {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+                )
+                {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+                AS
+                {% for source in sources %}
+                    SELECT
+                    {% for col in source.columns %}
+                        {{ get_source_transform(col) }} AS "{{ col.name }}"
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+
+                    {{ source.join }}
+
+                    {% if not loop.last %}
+                        {% if config.insertStrategy in ['UNION', 'UNION ALL'] %}
+                            {{ config.insertStrategy }}
+                        {% else %}
+                            UNION
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
         run:
-          templateString: "\n    {% for test in node.tests if config.testsEnabled %}\n        {% if test.runOrder == 'Before' %}\n            {{ test_stage(test.name, test.continueOnFailure) }}\n            {{ test.templateString }}\n        {% endif %}\n    {% endfor %}\n\n{% if node.materializationType == 'table' %}\n\t{% if config.preSQL %}\n\t\t{{ stage('Pre-SQL') }}\n\t\t{{ config.preSQL }}\n\t{% endif %}\n\t\n\t\n\t\n\t\t{% if config.truncateBefore %}\n\t\n\t\t\t{{ stage('Truncate Stage Table') }}\n\t\t\tTRUNCATE IF EXISTS {{ ref_no_link(node.location.name, node.name) }}\n\t\n\t\t{% endif %}\n\t\n\t\n\t\t{% if config.insertStrategy in ['UNION', 'UNION ALL'] %}\n\t\t\t{{ stage( config.insertStrategy + ' Sources' | string ) }}\n\t\t\tINSERT INTO {{ ref_no_link(node.location.name, node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in columns %}\n\t\t\t\t\t\t\"{{ col.name }}\"\n\t\t\t\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t{% endif %}\n\t\n\t\n\t\t{% for source in sources %}\n\t\n\t\t\t{% if config.insertStrategy == 'INSERT' %}\n\t\t\t\t{{ stage('Insert ' + source.name | string ) }}\n\t\n\t\t\t\tINSERT INTO {{ ref_no_link(node.location.name, node.name) }}\n\t\t\t\t(\n\t\t\t\t\t{% for col in source.columns %}\n\t\t\t\t\t\t\"{{ col.name }}\"\n\t\t\t\t\t\t{%- if not loop.last -%},{% endif %}\n\t\t\t\t\t{% endfor %}\n\t\t\t\t)\n\t\t\t{% endif %}\n\t\n\t\t\tSELECT\n\t\t\t{% for col in source.columns %}\n                {{ get_source_transform(col) }} AS \"{{ col.name }}\"\n\t\t\t\t{%- if not loop.last -%}, {% endif %}\n\t\t\t{% endfor %}\n\t\n\t\t\t{{ source.join }}\n\t\n\t\t\t{% if config.insertStrategy in ['UNION', 'UNION ALL'] and not loop.last %}\n\t\t\t\t{{config.insertStrategy}}\n\t\t\t{% endif %}\n\t\n\t\t{% endfor %}\n\t\n\t{% if config.postSQL %}\n\t\t{{ stage('Post-SQL') }}\n\t\t{{ config.postSQL }}\n\t{% endif %}\n{% endif %}\n\n{% if config.testsEnabled %}\n\t{% for test in node.tests %}\n\t\t{% if test.runOrder == 'After' %}\n\t\t\t{{ test_stage(test.name, test.continueOnFailure) }}\n\t\t\t{{ test.templateString }}\n        {% endif %}\n\t{% endfor %}\n\n\t{% for column in columns %}\n\t\t{% for test in column.tests %}\n\t\t\t{{ test_stage(column.name + \": \" + test.name) }}\n\t\t\t{{ test.templateString }}\n\t\t{% endfor %}\n\t{% endfor %}\n{% endif %}\n"
+          templateString: |2
+
+                {% for test in node.tests if config.testsEnabled %}
+                    {% if test.runOrder == 'Before' %}
+                        {{ test_stage(test.name, test.continueOnFailure) }}
+                        {{ test.templateString }}
+                    {% endif %}
+                {% endfor %}
+
+            {% if node.materializationType == 'table' %}
+            	{% if config.preSQL %}
+            		{{ stage('Pre-SQL') }}
+            		{{ config.preSQL }}
+            	{% endif %}
+            	
+            	
+            	
+            		{% if config.truncateBefore %}
+            	
+            			{{ stage('Truncate Stage Table') }}
+            			TRUNCATE IF EXISTS {{ ref_no_link(node.location.name, node.name) }}
+            	
+            		{% endif %}
+            	
+            	
+            		{% if config.insertStrategy in ['UNION', 'UNION ALL'] %}
+            			{{ stage( config.insertStrategy + ' Sources' | string ) }}
+            			INSERT INTO {{ ref_no_link(node.location.name, node.name) }}
+            				(
+            					{% for col in columns %}
+            						"{{ col.name }}"
+            						{%- if not loop.last -%},{% endif %}
+            					{% endfor %}
+            				)
+            		{% endif %}
+            	
+            	
+            		{% for source in sources %}
+            	
+            			{% if config.insertStrategy == 'INSERT' %}
+            				{{ stage('Insert ' + source.name | string ) }}
+            	
+            				INSERT INTO {{ ref_no_link(node.location.name, node.name) }}
+            				(
+            					{% for col in source.columns %}
+            						"{{ col.name }}"
+            						{%- if not loop.last -%},{% endif %}
+            					{% endfor %}
+            				)
+            			{% endif %}
+            	
+            			SELECT
+            			{% for col in source.columns %}
+                            {{ get_source_transform(col) }} AS "{{ col.name }}"
+            				{%- if not loop.last -%}, {% endif %}
+            			{% endfor %}
+            	
+            			{{ source.join }}
+            	
+            			{% if config.insertStrategy in ['UNION', 'UNION ALL'] and not loop.last %}
+            				{{config.insertStrategy}}
+            			{% endif %}
+            	
+            		{% endfor %}
+            	
+            	{% if config.postSQL %}
+            		{{ stage('Post-SQL') }}
+            		{{ config.postSQL }}
+            	{% endif %}
+            {% endif %}
+
+            {% if config.testsEnabled %}
+            	{% for test in node.tests %}
+            		{% if test.runOrder == 'After' %}
+            			{{ test_stage(test.name, test.continueOnFailure) }}
+            			{{ test.templateString }}
+                    {% endif %}
+            	{% endfor %}
+
+            	{% for column in columns %}
+            		{% for test in column.tests %}
+            			{{ test_stage(column.name + ": " + test.name) }}
+            			{{ test.templateString }}
+            		{% endfor %}
+            	{% endfor %}
+            {% endif %}
     name: Stage
     version: 1
   StepType-View:
@@ -1548,9 +2748,380 @@ stepTypes:
           attributeName: isSystemUpdateDate
       templates:
         create:
-          templateString: "{% if node.materializationType == 'table' %}\n    {{ stage('Create Persistent Stage Table') }}\n\n    CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}\n    (\n        {% for col in columns %}\n            \"{{ col.name }}\" {{ col.dataType }}\n            {% if col.isSurrogateKey %}\n\t\t        identity\n            {% endif %}\n            {%- if not col.nullable %} NOT NULL\n                {%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}\n            {% endif %}\n            {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n    )\n    {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n\n\n{% elif node.materializationType == 'view' %}\n    {{ stage('Create Persistent Stage View') }}\n\n    CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}\n    (\n        {% for col in columns %}\n            \"{{ col.name }}\"\n            {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}\n            {%- if not loop.last -%},{% endif %}\n        {% endfor %}\n    )\n    {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}\n    AS\n    {% for source in sources %}\n\n\t\t{% if not loop.last %} UNION ALL {% endif %}\n\t{% endfor %}\n\n        {% for col in source.columns %}\n            {% if col.isSurrogateKey or col.isSystemUpdateDate or col.isSystemCreateDate %}\n                NULL\n            {% else %}\n                {{ get_source_transform(col) }}\n            {% endif %}\n            AS \"{{ col.name }}\"\n            {%- if not loop.last -%}, {% endif %}\n        {% endfor %}\n        {{ source.join }}\n\n{% endif %}\n"
+          templateString: |
+            {% if node.materializationType == 'table' %}
+                {{ stage('Create Persistent Stage Table') }}
+
+                CREATE OR REPLACE TABLE {{ ref_no_link(node.location.name, node.name) }}
+                (
+                    {% for col in columns %}
+                        "{{ col.name }}" {{ col.dataType }}
+                        {% if col.isSurrogateKey %}
+            		        identity
+                        {% endif %}
+                        {%- if not col.nullable %} NOT NULL
+                            {%- if col.defaultValue | length > 0 %} DEFAULT {{ col.defaultValue }}{% endif %}
+                        {% endif %}
+                        {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+                )
+                {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+
+
+            {% elif node.materializationType == 'view' %}
+                {{ stage('Create Persistent Stage View') }}
+
+                CREATE OR REPLACE VIEW {{ ref_no_link(node.location.name, node.name) }}
+                (
+                    {% for col in columns %}
+                        "{{ col.name }}"
+                        {%- if col.description | length > 0 %} COMMENT '{{ col.description }}'{% endif %}
+                        {%- if not loop.last -%},{% endif %}
+                    {% endfor %}
+                )
+                {%- if node.description | length > 0 %} COMMENT = '{{ node.description }}'{% endif %}
+                AS
+                {% for source in sources %}
+
+            		{% if not loop.last %} UNION ALL {% endif %}
+            	{% endfor %}
+
+                    {% for col in source.columns %}
+                        {% if col.isSurrogateKey or col.isSystemUpdateDate or col.isSystemCreateDate %}
+                            NULL
+                        {% else %}
+                            {{ get_source_transform(col) }}
+                        {% endif %}
+                        AS "{{ col.name }}"
+                        {%- if not loop.last -%}, {% endif %}
+                    {% endfor %}
+                    {{ source.join }}
+
+            {% endif %}
         run:
-          templateString: "\n{% set has_business_key = columns | selectattr(\"isBusinessKey\") | list | length > 0 %}\n{% set is_type_2 = columns | selectattr(\"isChangeTracking\") | list | length > 0 %}\n\n    {% for test in node.tests if config.testsEnabled %}\n        {% if test.runOrder == 'Before' %}\n            {{ test_stage(test.name, test.continueOnFailure) }}\n            {{ test.templateString }}\n        {% endif %}\n    {% endfor %}\n\n{% if node.materializationType == 'table' %}\n\t{% if config.preSQL %}\n\t\t{{ stage('Pre-SQL') }}\n\t\t{{ config.preSQL }}\n\t{% endif %}\n\t\n    {% if has_business_key and is_type_2 %}\n\n        {% for source in sources %}\n            {{ stage('MERGE ' + source.name | string) }}\n            MERGE INTO {{ ref_no_link(node.location.name, node.name) }} \"TGT\"\n            USING (\n            /* New Rows That Don't Exist */\n            SELECT\n            {% for col in source.columns if not col.isSurrogateKey %}\n                {% if col.isSystemVersion %}\n                    1\n                {% elif col.isSystemCurrentFlag %}\n                    'Y'\n                {% else %}\n                   {{ get_source_transform(col) }}\n                {% endif %}\n                AS \"{{ col.name }}\",\n            {% endfor %}\n                'INSERT_INITAL_VERSION_ROWS' AS \"DML_OPERATION\"\n            {{ source.join }}\n            LEFT JOIN {{ ref_no_link(node.location.name, node.name) }} \"DIM\" ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                    {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %}\n            WHERE\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                \"DIM\".\"{{ col.name }}\" IS NULL\n            {% endfor %}\n            UNION ALL\n            /* New Row Needing To Be Inserted Due To Type-2 Column Changes */\n            SELECT\n            {% for col in source.columns if not col.isSurrogateKey %}\n                {% if col.isSystemVersion %}\n                    \"DIM\".\"{{ col.name }}\" + 1\n                {% elif col.isSystemCurrentFlag %}\n                    'Y'\n                {% else %}\n                   {{ get_source_transform(col) }}\n                {% endif %}\n                AS \"{{ col.name }}\",\n            {% endfor %}\n                'INSERT_NEW_VERSION_ROWS' AS \"DML_OPERATION\"\n            {{ source.join }}\n            INNER JOIN {{ ref_no_link(node.location.name, node.name) }} \"DIM\" ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %}\n            WHERE \"DIM\".\"{{ get_value_by_column_attribute(\"isSystemCurrentFlag\") }}\" = 'Y'\n            {% for col in source.columns if (col.isChangeTracking == true) %}\n                {% if loop.first %}\n                    AND (\n                {% else %}\n                    OR\n                {% endif %}\n                ( NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST(\"DIM\".\"{{ col.name }}\" as STRING), '**NULL**') )\n                {% if loop.last %}\n                    )\n                {% endif %}\n            {% endfor %}\n            UNION ALL\n            /* Rows Needing To Be Expired Due To Type-2 Column Changes\n            In this case, only two columns are merged (version and end date) */\n            SELECT\n            {%- for col in source.columns if not col.isSurrogateKey %}\n                {% if col.isSystemEndDate %}\n                    DATEADD(MILLISECONDS, -1, CAST(CURRENT_TIMESTAMP AS TIMESTAMP))\n                {% elif col.isSystemCurrentFlag %}\n                    'N'\n                {% else %}\n                    \"DIM\".\"{{ col.name }}\"\n                {% endif %}\n                AS \"{{ col.name }}\",\n            {% endfor -%}\n                'update_expired_version_rows' AS \"DML_OPERATION\"\n            {{ source.join }}\n            INNER JOIN {{ ref_no_link(node.location.name, node.name) }} \"DIM\" ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %}\n            WHERE \"DIM\".\"{{ get_value_by_column_attribute(\"isSystemCurrentFlag\") }}\" = 'Y'\n            {% for col in source.columns if (col.isChangeTracking == true) %}\n                {% if loop.first %}\n                    AND (\n                {% else %}\n                    OR\n                {% endif %}\n                ( NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST(\"DIM\".\"{{ col.name }}\" as STRING), '**NULL**') )\n                {% if loop.last %}\n                    )\n                {% endif %}\n            {% endfor %}\n            UNION ALL\n            /* Rows Needing To Be Updated Due To Changes To Non-Type-2 source.columns\n            This case merges only when there are changes in non-type-2 column updates, but no changes in type-2 columns*/\n            SELECT\n            {%- for col in source.columns if not col.isSurrogateKey %}\n                {% if col.isSystemVersion or col.isSystemCreateDate or col.isSystemStartDate or col.isSystemEndDate %}\n                    \"DIM\".\"{{ col.name }}\"\n                {% elif col.isSystemCurrentFlag %}\n                    'Y'\n                {% else %}\n                    {{ get_source_transform(col) }}\n                {% endif %}\n                AS \"{{ col.name }}\",\n            {% endfor -%}\n                'UPDATE_NON_TYPE2_ROWS' AS \"DML_OPERATION\"\n            {{ source.join }}\n            INNER JOIN {{ ref_no_link(node.location.name, node.name) }} \"DIM\" ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %}\n            WHERE \"DIM\".\"{{ get_value_by_column_attribute(\"isSystemCurrentFlag\") }}\" = 'Y'\n            AND (\n            {% for col in source.columns if (col.isChangeTracking) -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                {{ get_source_transform(col) }} = \"DIM\".\"{{ col.name }}\"\n            {% endfor %} )\n            {% for col in source.columns if not (   col.isBusinessKey or\n                                                    col.isChangeTracking or\n                                                    col.isSurrogateKey or\n                                                    col.isSystemVersion or\n                                                    col.isSystemCurrentFlag or\n                                                    col.isSystemStartDate or\n                                                    col.isSystemEndDate or\n                                                    col.isSystemUpdateDate or\n                                                    col.isSystemCreateDate) -%}\n                {% if loop.first %}\n                    AND (\n                {% endif %}\n                {% if not loop.first %}\n                    OR\n                {% endif %}\n                NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST(\"DIM\".\"{{ col.name }}\" as STRING), '**NULL**')\n                {% if loop.last %}\n                    )\n                {% endif %}\n            {% endfor %}\n        ) AS \"SRC\"\n        ON\n        {% for col in source.columns if col.isBusinessKey -%}\n            {% if not loop.first %}\n                AND\n            {% endif %}\n            \"TGT\".\"{{ col.name }}\" = \"SRC\".\"{{ col.name }}\"\n        {% endfor %}\n        AND \"TGT\".\"{{ get_value_by_column_attribute(\"isSystemVersion\") }}\" = \"SRC\".\"{{ get_value_by_column_attribute(\"isSystemVersion\") }}\"\n        WHEN MATCHED THEN UPDATE SET\n        {%- for col in source.columns if not (col.isBusinessKey or col.isSurrogateKey or col.isSystemCreateDate) %}\n            \"TGT\".\"{{ col.name }}\" = \"SRC\".\"{{ col.name }}\"\n            {% if not loop.last %}, {% endif %}\n        {% endfor -%}\n        WHEN NOT MATCHED THEN INSERT (\n        {%- for col in source.columns if not col.isSurrogateKey %}\n            \"{{ col.name }}\"\n            {% if not loop.last %}, {% endif %}\n        {% endfor -%}\n        )\n        VALUES (\n        {%- for col in source.columns if not col.isSurrogateKey %}\n            \"SRC\".\"{{ col.name }}\"\n            {% if not loop.last %}, {% endif %}\n        {% endfor -%}\n        )\n\n    {% endfor %}\n\n    {% elif has_business_key and not is_type_2 %}\n        {% for source in sources %}\n            {{ stage('MERGE ' + source.name | string ) }}\n            MERGE INTO {{ ref_no_link(node.location.name, node.name) }} \"TGT\"\n            USING (\n                SELECT\n                {% for col in source.columns if not col.isSurrogateKey %}\n                    {% if col.isSystemVersion %}\n                    \t1\n                    {% elif col.isSystemCurrentFlag %}\n                    \t'Y'\n                    {% else %}\n                        {{ get_source_transform(col) }}\n                    {% endif %}\n                    AS \"{{ col.name }}\"\n                    {%- if not loop.last %}, {% endif %}\n                {% endfor %}\n                {{ source.join }})\n                AS \"SRC\"\n            ON\n            {% for col in source.columns if col.isBusinessKey -%}\n                {% if not loop.first %}\n                    AND\n                {% endif %}\n                \"SRC\".\"{{ col.name }}\" = \"TGT\".\"{{ col.name }}\"\n            {% endfor %}\n            WHEN MATCHED\n            {% for col in source.columns if not (   col.isBusinessKey or\n                                                    col.isSurrogateKey or\n                                                    col.isSystemVersion or\n                                                    col.isSystemCurrentFlag or\n                                                    col.isSystemStartDate or\n                                                    col.isSystemEndDate or\n                                                    col.isSystemUpdateDate or\n                                                    col.isSystemCreateDate) %}\n                {% if loop.first %}\n                    AND (\n                {% else %}\n                    OR\n                {% endif %}\n                NVL( CAST(\"SRC\".\"{{ col.name }}\" as STRING), '**NULL**') <> NVL( CAST(\"TGT\".\"{{ col.name }}\" as STRING), '**NULL**')\n                {% if loop.last %}\n                    )\n                {% endif %}\n            {% endfor %}\n            THEN UPDATE SET\n            {%- for col in source.columns if not (  col.isBusinessKey or\n                                                    col.isSurrogateKey or\n                                                    col.isSystemVersion or\n                                                    col.isSystemCurrentFlag or\n                                                    col.isSystemStartDate or\n                                                    col.isSystemEndDate or\n                                                    col.isSystemCreateDate) %}\n                    \"TGT\".\"{{ col.name }}\" = \"SRC\".\"{{ col.name }}\"\n                {% if not loop.last %}, {% endif %}\n            {% endfor %}\n            WHEN NOT MATCHED THEN\n            INSERT (\n            {%- for col in source.columns if not col.isSurrogateKey %}\n                \"{{ col.name }}\"\n                {% if not loop.last %}, {% endif %}\n            {% endfor -%}\n            )\n            VALUES (\n            {%- for col in source.columns if not col.isSurrogateKey %}\n                \"SRC\".\"{{ col.name }}\"\n                {% if not loop.last %}, {% endif %}\n            {% endfor -%}\n            )\n        {% endfor %}\n    {% else %}\n        {% for source in sources %}\n            {{ stage('Insert ' + source.name | string ) }}\n            INSERT INTO {{ ref_no_link(node.location.name, node.name) }}\n            (\n                {% for col in source.columns if not col.isSurrogateKey %}\n                    \"{{ col.name }}\"\n                    {%- if not loop.last -%},{% endif %}\n                {% endfor %}\n            )\n\n            SELECT\n            {% for col in source.columns if not col.isSurrogateKey %}\n\n                {% if col.isSystemVersion %}\n                    1\n                {% elif col.isSystemCurrentFlag %}\n                    'Y'\n                {% else %}\n                    {{ get_source_transform(col) }}\n                {% endif %}\n                AS \"{{ col.name }}\"\n                {%- if not loop.last -%}, {% endif %}\n                \n            {% endfor %}\n            {{ source.join }}\n        {% endfor %}            \n    {% endif %}\n\t\n\t{% if config.postSQL %}\n\t\t{{ stage('Post-SQL') }}\n\t\t{{ config.postSQL }}\n\t{% endif %}\n\t\n{% endif %}\n\n{% if config.testsEnabled %}\n\t{% for test in node.tests %}\n\t\t{% if test.runOrder == 'After' %}\n\t\t\t{{ test_stage(test.name, test.continueOnFailure) }}\n\t\t\t{{ test.templateString }}\n        {% endif %}\n\t{% endfor %}\n\n\t{% for column in columns %}\n\t\t{% for test in column.tests %}\n\t\t\t{{ test_stage(column.name + \": \" + test.name) }}\n\t\t\t{{ test.templateString }}\n\t\t{% endfor %}\n\t{% endfor %}\n{% endif %}"
+          templateString: |-
+
+            {% set has_business_key = columns | selectattr("isBusinessKey") | list | length > 0 %}
+            {% set is_type_2 = columns | selectattr("isChangeTracking") | list | length > 0 %}
+
+                {% for test in node.tests if config.testsEnabled %}
+                    {% if test.runOrder == 'Before' %}
+                        {{ test_stage(test.name, test.continueOnFailure) }}
+                        {{ test.templateString }}
+                    {% endif %}
+                {% endfor %}
+
+            {% if node.materializationType == 'table' %}
+            	{% if config.preSQL %}
+            		{{ stage('Pre-SQL') }}
+            		{{ config.preSQL }}
+            	{% endif %}
+            	
+                {% if has_business_key and is_type_2 %}
+
+                    {% for source in sources %}
+                        {{ stage('MERGE ' + source.name | string) }}
+                        MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
+                        USING (
+                        /* New Rows That Don't Exist */
+                        SELECT
+                        {% for col in source.columns if not col.isSurrogateKey %}
+                            {% if col.isSystemVersion %}
+                                1
+                            {% elif col.isSystemCurrentFlag %}
+                                'Y'
+                            {% else %}
+                               {{ get_source_transform(col) }}
+                            {% endif %}
+                            AS "{{ col.name }}",
+                        {% endfor %}
+                            'INSERT_INITAL_VERSION_ROWS' AS "DML_OPERATION"
+                        {{ source.join }}
+                        LEFT JOIN {{ ref_no_link(node.location.name, node.name) }} "DIM" ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                                {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %}
+                        WHERE
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            "DIM"."{{ col.name }}" IS NULL
+                        {% endfor %}
+                        UNION ALL
+                        /* New Row Needing To Be Inserted Due To Type-2 Column Changes */
+                        SELECT
+                        {% for col in source.columns if not col.isSurrogateKey %}
+                            {% if col.isSystemVersion %}
+                                "DIM"."{{ col.name }}" + 1
+                            {% elif col.isSystemCurrentFlag %}
+                                'Y'
+                            {% else %}
+                               {{ get_source_transform(col) }}
+                            {% endif %}
+                            AS "{{ col.name }}",
+                        {% endfor %}
+                            'INSERT_NEW_VERSION_ROWS' AS "DML_OPERATION"
+                        {{ source.join }}
+                        INNER JOIN {{ ref_no_link(node.location.name, node.name) }} "DIM" ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %}
+                        WHERE "DIM"."{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+                        {% for col in source.columns if (col.isChangeTracking == true) %}
+                            {% if loop.first %}
+                                AND (
+                            {% else %}
+                                OR
+                            {% endif %}
+                            ( NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST("DIM"."{{ col.name }}" as STRING), '**NULL**') )
+                            {% if loop.last %}
+                                )
+                            {% endif %}
+                        {% endfor %}
+                        UNION ALL
+                        /* Rows Needing To Be Expired Due To Type-2 Column Changes
+                        In this case, only two columns are merged (version and end date) */
+                        SELECT
+                        {%- for col in source.columns if not col.isSurrogateKey %}
+                            {% if col.isSystemEndDate %}
+                                DATEADD(MILLISECONDS, -1, CAST(CURRENT_TIMESTAMP AS TIMESTAMP))
+                            {% elif col.isSystemCurrentFlag %}
+                                'N'
+                            {% else %}
+                                "DIM"."{{ col.name }}"
+                            {% endif %}
+                            AS "{{ col.name }}",
+                        {% endfor -%}
+                            'update_expired_version_rows' AS "DML_OPERATION"
+                        {{ source.join }}
+                        INNER JOIN {{ ref_no_link(node.location.name, node.name) }} "DIM" ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %}
+                        WHERE "DIM"."{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+                        {% for col in source.columns if (col.isChangeTracking == true) %}
+                            {% if loop.first %}
+                                AND (
+                            {% else %}
+                                OR
+                            {% endif %}
+                            ( NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST("DIM"."{{ col.name }}" as STRING), '**NULL**') )
+                            {% if loop.last %}
+                                )
+                            {% endif %}
+                        {% endfor %}
+                        UNION ALL
+                        /* Rows Needing To Be Updated Due To Changes To Non-Type-2 source.columns
+                        This case merges only when there are changes in non-type-2 column updates, but no changes in type-2 columns*/
+                        SELECT
+                        {%- for col in source.columns if not col.isSurrogateKey %}
+                            {% if col.isSystemVersion or col.isSystemCreateDate or col.isSystemStartDate or col.isSystemEndDate %}
+                                "DIM"."{{ col.name }}"
+                            {% elif col.isSystemCurrentFlag %}
+                                'Y'
+                            {% else %}
+                                {{ get_source_transform(col) }}
+                            {% endif %}
+                            AS "{{ col.name }}",
+                        {% endfor -%}
+                            'UPDATE_NON_TYPE2_ROWS' AS "DML_OPERATION"
+                        {{ source.join }}
+                        INNER JOIN {{ ref_no_link(node.location.name, node.name) }} "DIM" ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %}
+                        WHERE "DIM"."{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+                        AND (
+                        {% for col in source.columns if (col.isChangeTracking) -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            {{ get_source_transform(col) }} = "DIM"."{{ col.name }}"
+                        {% endfor %} )
+                        {% for col in source.columns if not (   col.isBusinessKey or
+                                                                col.isChangeTracking or
+                                                                col.isSurrogateKey or
+                                                                col.isSystemVersion or
+                                                                col.isSystemCurrentFlag or
+                                                                col.isSystemStartDate or
+                                                                col.isSystemEndDate or
+                                                                col.isSystemUpdateDate or
+                                                                col.isSystemCreateDate) -%}
+                            {% if loop.first %}
+                                AND (
+                            {% endif %}
+                            {% if not loop.first %}
+                                OR
+                            {% endif %}
+                            NVL( CAST({{ get_source_transform(col) }} as STRING), '**NULL**') <> NVL( CAST("DIM"."{{ col.name }}" as STRING), '**NULL**')
+                            {% if loop.last %}
+                                )
+                            {% endif %}
+                        {% endfor %}
+                    ) AS "SRC"
+                    ON
+                    {% for col in source.columns if col.isBusinessKey -%}
+                        {% if not loop.first %}
+                            AND
+                        {% endif %}
+                        "TGT"."{{ col.name }}" = "SRC"."{{ col.name }}"
+                    {% endfor %}
+                    AND "TGT"."{{ get_value_by_column_attribute("isSystemVersion") }}" = "SRC"."{{ get_value_by_column_attribute("isSystemVersion") }}"
+                    WHEN MATCHED THEN UPDATE SET
+                    {%- for col in source.columns if not (col.isBusinessKey or col.isSurrogateKey or col.isSystemCreateDate) %}
+                        "TGT"."{{ col.name }}" = "SRC"."{{ col.name }}"
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor -%}
+                    WHEN NOT MATCHED THEN INSERT (
+                    {%- for col in source.columns if not col.isSurrogateKey %}
+                        "{{ col.name }}"
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor -%}
+                    )
+                    VALUES (
+                    {%- for col in source.columns if not col.isSurrogateKey %}
+                        "SRC"."{{ col.name }}"
+                        {% if not loop.last %}, {% endif %}
+                    {% endfor -%}
+                    )
+
+                {% endfor %}
+
+                {% elif has_business_key and not is_type_2 %}
+                    {% for source in sources %}
+                        {{ stage('MERGE ' + source.name | string ) }}
+                        MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
+                        USING (
+                            SELECT
+                            {% for col in source.columns if not col.isSurrogateKey %}
+                                {% if col.isSystemVersion %}
+                                	1
+                                {% elif col.isSystemCurrentFlag %}
+                                	'Y'
+                                {% else %}
+                                    {{ get_source_transform(col) }}
+                                {% endif %}
+                                AS "{{ col.name }}"
+                                {%- if not loop.last %}, {% endif %}
+                            {% endfor %}
+                            {{ source.join }})
+                            AS "SRC"
+                        ON
+                        {% for col in source.columns if col.isBusinessKey -%}
+                            {% if not loop.first %}
+                                AND
+                            {% endif %}
+                            "SRC"."{{ col.name }}" = "TGT"."{{ col.name }}"
+                        {% endfor %}
+                        WHEN MATCHED
+                        {% for col in source.columns if not (   col.isBusinessKey or
+                                                                col.isSurrogateKey or
+                                                                col.isSystemVersion or
+                                                                col.isSystemCurrentFlag or
+                                                                col.isSystemStartDate or
+                                                                col.isSystemEndDate or
+                                                                col.isSystemUpdateDate or
+                                                                col.isSystemCreateDate) %}
+                            {% if loop.first %}
+                                AND (
+                            {% else %}
+                                OR
+                            {% endif %}
+                            NVL( CAST("SRC"."{{ col.name }}" as STRING), '**NULL**') <> NVL( CAST("TGT"."{{ col.name }}" as STRING), '**NULL**')
+                            {% if loop.last %}
+                                )
+                            {% endif %}
+                        {% endfor %}
+                        THEN UPDATE SET
+                        {%- for col in source.columns if not (  col.isBusinessKey or
+                                                                col.isSurrogateKey or
+                                                                col.isSystemVersion or
+                                                                col.isSystemCurrentFlag or
+                                                                col.isSystemStartDate or
+                                                                col.isSystemEndDate or
+                                                                col.isSystemCreateDate) %}
+                                "TGT"."{{ col.name }}" = "SRC"."{{ col.name }}"
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                        WHEN NOT MATCHED THEN
+                        INSERT (
+                        {%- for col in source.columns if not col.isSurrogateKey %}
+                            "{{ col.name }}"
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor -%}
+                        )
+                        VALUES (
+                        {%- for col in source.columns if not col.isSurrogateKey %}
+                            "SRC"."{{ col.name }}"
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor -%}
+                        )
+                    {% endfor %}
+                {% else %}
+                    {% for source in sources %}
+                        {{ stage('Insert ' + source.name | string ) }}
+                        INSERT INTO {{ ref_no_link(node.location.name, node.name) }}
+                        (
+                            {% for col in source.columns if not col.isSurrogateKey %}
+                                "{{ col.name }}"
+                                {%- if not loop.last -%},{% endif %}
+                            {% endfor %}
+                        )
+
+                        SELECT
+                        {% for col in source.columns if not col.isSurrogateKey %}
+
+                            {% if col.isSystemVersion %}
+                                1
+                            {% elif col.isSystemCurrentFlag %}
+                                'Y'
+                            {% else %}
+                                {{ get_source_transform(col) }}
+                            {% endif %}
+                            AS "{{ col.name }}"
+                            {%- if not loop.last -%}, {% endif %}
+                            
+                        {% endfor %}
+                        {{ source.join }}
+                    {% endfor %}            
+                {% endif %}
+            	
+            	{% if config.postSQL %}
+            		{{ stage('Post-SQL') }}
+            		{{ config.postSQL }}
+            	{% endif %}
+            	
+            {% endif %}
+
+            {% if config.testsEnabled %}
+            	{% for test in node.tests %}
+            		{% if test.runOrder == 'After' %}
+            			{{ test_stage(test.name, test.continueOnFailure) }}
+            			{{ test.templateString }}
+                    {% endif %}
+            	{% endfor %}
+
+            	{% for column in columns %}
+            		{% for test in column.tests %}
+            			{{ test_stage(column.name + ": " + test.name) }}
+            			{{ test.templateString }}
+            		{% endfor %}
+            	{% endfor %}
+            {% endif %}
     name: Persistent Stage
     version: 1
 subgraphs:
