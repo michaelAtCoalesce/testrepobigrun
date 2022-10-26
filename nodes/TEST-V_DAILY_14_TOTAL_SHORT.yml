@@ -9,7 +9,7 @@ steps:
       deployEnabled: true
       description: ""
       isDataVault: false
-      isMultisource: false
+      isMultisource: true
       locationID: ""
       locationName: TEST
       materializationType: view
@@ -47,7 +47,9 @@ steps:
         cteString: ""
         enabledColumnTestIDs: []
         sourceMapping:
-          - customSQL:
+          - aliases:
+              STG_DAILY_14_TOTAL_SHORT: "23542"
+            customSQL:
               customSQL: ""
             dependencies:
               - locationName: TEST

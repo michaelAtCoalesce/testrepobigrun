@@ -1,12 +1,16 @@
 defaultStorageMapping: TEST
 jobs:
   Job-6:
+    excludeSelector: ""
     id: 6
+    includeSelector: "{ location: SRC name: CUSTOMER } OR { location: SRC name: LINEITEM } OR { location: TEST name: STG_CUSTOMER } OR { location: TEST name: STG_PARTSUPP1 }"
     name: New Job
     steps: []
     subgraphs: []
   Job-7:
+    excludeSelector: ""
     id: 7
+    includeSelector: "{ location: TEST name: V_DAILY_14_TOTAL_SHORT } OR { location: TEST name: V_DAILY_14_TOTAL_SHORT1 } OR { subgraph: \"BV Subgraph\" }"
     name: New Job
     steps: []
     subgraphs: []
@@ -71,13 +75,7 @@ locations:
       "59":
         database: MICHAELXU_WH
         schema: NOLAN_SCHEMA_TEST
-macros:
-  Macro-1:
-    id: "1"
-    macroString: |-
-      {%- macro even_odd(column) -%}
-          CASE WHEN MOD({{ column }}, 2) = 0 THEN 'EVEN' ELSE 'ODD' END
-      {%- endmacro %}
+macros: {}
 packages: {}
 projects: {}
 stepTypes:
@@ -1205,10 +1203,191 @@ stepTypes:
                 
     name: Copy of Fact
     version: 1
+  StepType-50:
+    id: "50"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: New Type
+    version: 1
+  StepType-51:
+    id: "51"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: New Type
+    version: 1
+  StepType-52:
+    id: "52"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: New Type
+    version: 1
+  StepType-53:
+    id: "53"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: New Type
+    version: 1
+  StepType-54:
+    id: "54"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: New Type
+    version: 1
+  StepType-55:
+    id: "55"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: New Type
+    version: 1
+  StepType-56:
+    id: "56"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: New Type
+    version: 1
+  StepType-57:
+    id: "57"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: New Type
+    version: 1
+  StepType-58:
+    id: "58"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: excessively long name for a UDN tbqh
+    version: 1
+  StepType-59:
+    id: "59"
+    isDisabled: false
+    metadata:
+      defaultStorageLocation: null
+      error: null
+      nodeMetadataSpec: |-
+        capitalized: New Type
+        short: NEW
+        tagColor: gray
+        plural: New Types
+      templates:
+        create:
+          templateString: ""
+        run:
+          templateString: ""
+    name: zzz
+    version: 1
   StepType-9:
     id: "9"
     isDisabled: false
     metadata:
+      defaultStorageLocation: null
       error: null
       nodeMetadataSpec: |
         capitalized: AAA
@@ -3368,6 +3547,36 @@ subgraphs:
       - "20799"
       - "20895"
       - "21151"
+      - 403
+      - 404
+      - 405
+      - 406
+      - 407
+      - 408
+      - 409
+      - 410
+      - 411
+      - 412
+      - 413
+      - 414
+      - 415
+      - 416
+      - 417
+      - 418
+      - 419
+      - 420
+      - 421
+      - 422
+      - "455"
+      - "20407"
+      - "21175"
+      - "21239"
+      - "21374"
+      - "23508"
+      - "23515"
+      - "23545"
+      - "23548"
+      - "23546"
   Subgraph-3:
     id: 3
     name: New Sub-Graph
@@ -3414,4 +3623,25 @@ subgraphs:
       - "21151"
       - "23508"
       - "23515"
+      - "23541"
+      - "23555"
+      - "23562"
+      - "23542"
+      - "23556"
+      - "23563"
+      - "23543"
+      - "23557"
+      - "23564"
+      - "23544"
+      - "23558"
+      - "23565"
+      - "23545"
+      - "23559"
+      - "23566"
+      - "23546"
+      - "23560"
+      - "23567"
+      - "23547"
+      - "23561"
+      - "23568"
 version: 1

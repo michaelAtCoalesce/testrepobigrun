@@ -4,12 +4,14 @@ steps:
       config:
         insertStrategy: INSERT
         postSQL: ""
-        preSQL: ""
+        preSQL: |-
+          {{stage ('asd') }}
+          {{ sdf | sdf }}
         testsEnabled: true
         truncateBefore: true
       database: ""
       dependencies: []
-      deployEnabled: false
+      deployEnabled: true
       description: ""
       isDataVault: false
       isMultisource: false
