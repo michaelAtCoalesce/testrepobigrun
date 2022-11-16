@@ -17,6 +17,9 @@ locations:
       "55":
         database: SNOWFLAKE_SAMPLE_DATA
         schema: TPCH_SF1
+      "68":
+        database: SNOWFLAKE_SAMPLE_DATA
+        schema: TPCH_SF1
   STG:
     mappingDefinitions:
       "48":
@@ -28,6 +31,9 @@ locations:
       "55":
         database: MICHAELXU_WH
         schema: MICHAELXU_SCHEMA
+      "68":
+        database: BIGRUN_DB
+        schema: MICHAEL_SCHEMA_STG
   TEST:
     mappingDefinitions:
       "48":
@@ -39,13 +45,10 @@ locations:
       "55":
         database: MICHAELXU_WH
         schema: MICHAELXU_SCHEMA
-macros:
-  Macro-1:
-    id: "1"
-    macroString: |-
-      {%- macro even_odd(column) -%}
-          CASE WHEN MOD({{ column }}, 2) = 0 THEN 'EVEN' ELSE 'ODD' END
-      {%- endmacro %}
+      "68":
+        database: BIGRUN_DB
+        schema: MICHAEL_SCHEMA_TEST
+macros: {}
 packages: {}
 projects: {}
 stepTypes:
@@ -2550,7 +2553,7 @@ stepTypes:
     version: 1
   StepType-View:
     id: View
-    isDisabled: false
+    isDisabled: true
     metadata:
       defaultStorageLocation: null
       error: null
@@ -3104,8 +3107,6 @@ subgraphs:
     steps:
       - "20335"
       - "20343"
-      - "20599"
-      - "20855"
       - "21375"
       - "21376"
       - "21377"
@@ -3114,7 +3115,6 @@ subgraphs:
       - "20559"
       - "20815"
       - "21327"
-      - "20415"
       - "20543"
       - "20799"
       - "20895"
@@ -3146,9 +3146,6 @@ subgraphs:
       - "455"
       - "20335"
       - "20343"
-      - "20407"
-      - "20599"
-      - "20855"
       - "21175"
       - "21239"
       - "21374"
