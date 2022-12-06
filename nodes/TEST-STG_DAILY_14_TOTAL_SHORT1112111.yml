@@ -1,0 +1,67 @@
+steps:
+  STG_DAILY_14_TOTAL_SHORT1112111-25717:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 117925
+              stepCounter: "25717"
+            dataType: VARIANT
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: V
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 111013
+                    stepCounter: "24693"
+                transform: ""
+          - columnReference:
+              columnCounter: 117926
+              stepCounter: "25717"
+            dataType: TIMESTAMP_NTZ(9)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: T
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 111014
+                    stepCounter: "24693"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_DAILY_14_TOTAL_SHORT111211
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_DAILY_14_TOTAL_SHORT111211') }} "STG_DAILY_14_TOTAL_SHORT111211"
+            name: STG_DAILY_14_TOTAL_SHORT1112111
+            noLinkRefs: []
+      name: STG_DAILY_14_TOTAL_SHORT1112111
+      overrideSQL: false
+      schema: ""
+      sqlType: Stage
+      type: sql
+    stepCounter: "25717"

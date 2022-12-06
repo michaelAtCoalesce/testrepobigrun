@@ -1,0 +1,67 @@
+steps:
+  STG_DAILY_14_TOTAL_SHORT412-24445:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 109339
+              stepCounter: "24445"
+            dataType: VARIANT
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: V
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 105883
+                    stepCounter: "23933"
+                transform: ""
+          - columnReference:
+              columnCounter: 109340
+              stepCounter: "24445"
+            dataType: TIMESTAMP_NTZ(9)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: T
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 105884
+                    stepCounter: "23933"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_DAILY_14_TOTAL_SHORT41
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_DAILY_14_TOTAL_SHORT41') }} "STG_DAILY_14_TOTAL_SHORT41"
+            name: STG_DAILY_14_TOTAL_SHORT412
+            noLinkRefs: []
+      name: STG_DAILY_14_TOTAL_SHORT412
+      overrideSQL: false
+      schema: ""
+      sqlType: Stage
+      type: sql
+    stepCounter: "24445"

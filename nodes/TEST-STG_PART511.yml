@@ -1,0 +1,165 @@
+steps:
+  STG_PART511-24640:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 110657
+              stepCounter: "24640"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_PARTKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107201
+                    stepCounter: "24128"
+                transform: ""
+          - columnReference:
+              columnCounter: 110658
+              stepCounter: "24640"
+            dataType: VARCHAR(55)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_NAME
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107202
+                    stepCounter: "24128"
+                transform: ""
+          - columnReference:
+              columnCounter: 110659
+              stepCounter: "24640"
+            dataType: VARCHAR(25)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_MFGR
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107203
+                    stepCounter: "24128"
+                transform: ""
+          - columnReference:
+              columnCounter: 110660
+              stepCounter: "24640"
+            dataType: VARCHAR(10)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_BRAND
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107204
+                    stepCounter: "24128"
+                transform: ""
+          - columnReference:
+              columnCounter: 110661
+              stepCounter: "24640"
+            dataType: VARCHAR(25)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_TYPE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107205
+                    stepCounter: "24128"
+                transform: ""
+          - columnReference:
+              columnCounter: 110662
+              stepCounter: "24640"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_SIZE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107206
+                    stepCounter: "24128"
+                transform: ""
+          - columnReference:
+              columnCounter: 110663
+              stepCounter: "24640"
+            dataType: VARCHAR(10)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_CONTAINER
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107207
+                    stepCounter: "24128"
+                transform: ""
+          - columnReference:
+              columnCounter: 110664
+              stepCounter: "24640"
+            dataType: NUMBER(12,2)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_RETAILPRICE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107208
+                    stepCounter: "24128"
+                transform: ""
+          - columnReference:
+              columnCounter: 110665
+              stepCounter: "24640"
+            dataType: VARCHAR(23)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: P_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107209
+                    stepCounter: "24128"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_PART51
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_PART51') }} "STG_PART51"
+            name: STG_PART511
+            noLinkRefs: []
+      name: STG_PART511
+      overrideSQL: false
+      schema: ""
+      sqlType: Stage
+      type: sql
+    stepCounter: "24640"

@@ -1,0 +1,137 @@
+steps:
+  STG_SUPPLIER31113-26275:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 121690
+              stepCounter: "26275"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: S_SUPPKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107866
+                    stepCounter: "24227"
+                transform: ""
+          - columnReference:
+              columnCounter: 121691
+              stepCounter: "26275"
+            dataType: VARCHAR(25)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: S_NAME
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107867
+                    stepCounter: "24227"
+                transform: ""
+          - columnReference:
+              columnCounter: 121692
+              stepCounter: "26275"
+            dataType: VARCHAR(40)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: S_ADDRESS
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107868
+                    stepCounter: "24227"
+                transform: ""
+          - columnReference:
+              columnCounter: 121693
+              stepCounter: "26275"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: S_NATIONKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107869
+                    stepCounter: "24227"
+                transform: ""
+          - columnReference:
+              columnCounter: 121694
+              stepCounter: "26275"
+            dataType: VARCHAR(15)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: S_PHONE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107870
+                    stepCounter: "24227"
+                transform: ""
+          - columnReference:
+              columnCounter: 121695
+              stepCounter: "26275"
+            dataType: NUMBER(12,2)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: S_ACCTBAL
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107871
+                    stepCounter: "24227"
+                transform: ""
+          - columnReference:
+              columnCounter: 121696
+              stepCounter: "26275"
+            dataType: VARCHAR(101)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: S_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107872
+                    stepCounter: "24227"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_SUPPLIER3111
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_SUPPLIER3111') }} "STG_SUPPLIER3111"
+            name: STG_SUPPLIER31113
+            noLinkRefs: []
+      name: STG_SUPPLIER31113
+      overrideSQL: false
+      schema: ""
+      sqlType: Stage
+      type: sql
+    stepCounter: "26275"

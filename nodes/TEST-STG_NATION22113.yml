@@ -1,0 +1,95 @@
+steps:
+  STG_NATION22113-26255:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 121561
+              stepCounter: "26255"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: N_NATIONKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107737
+                    stepCounter: "24207"
+                transform: ""
+          - columnReference:
+              columnCounter: 121562
+              stepCounter: "26255"
+            dataType: VARCHAR(25)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: N_NAME
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107738
+                    stepCounter: "24207"
+                transform: ""
+          - columnReference:
+              columnCounter: 121563
+              stepCounter: "26255"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: N_REGIONKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107739
+                    stepCounter: "24207"
+                transform: ""
+          - columnReference:
+              columnCounter: 121564
+              stepCounter: "26255"
+            dataType: VARCHAR(152)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: N_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 107740
+                    stepCounter: "24207"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_NATION2211
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_NATION2211') }} "STG_NATION2211"
+            name: STG_NATION22113
+            noLinkRefs: []
+      name: STG_NATION22113
+      overrideSQL: false
+      schema: ""
+      sqlType: Stage
+      type: sql
+    stepCounter: "26255"
