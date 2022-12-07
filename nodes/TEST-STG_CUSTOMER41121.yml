@@ -1,0 +1,151 @@
+steps:
+  STG_CUSTOMER41121-27260:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 128339
+              stepCounter: "27260"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: C_CUSTKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 114515
+                    stepCounter: "25212"
+                transform: ""
+          - columnReference:
+              columnCounter: 128340
+              stepCounter: "27260"
+            dataType: VARCHAR(25)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: C_NAME
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 114516
+                    stepCounter: "25212"
+                transform: ""
+          - columnReference:
+              columnCounter: 128341
+              stepCounter: "27260"
+            dataType: VARCHAR(40)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: C_ADDRESS
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 114517
+                    stepCounter: "25212"
+                transform: ""
+          - columnReference:
+              columnCounter: 128342
+              stepCounter: "27260"
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: C_NATIONKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 114518
+                    stepCounter: "25212"
+                transform: ""
+          - columnReference:
+              columnCounter: 128343
+              stepCounter: "27260"
+            dataType: VARCHAR(15)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: C_PHONE
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 114519
+                    stepCounter: "25212"
+                transform: ""
+          - columnReference:
+              columnCounter: 128344
+              stepCounter: "27260"
+            dataType: NUMBER(12,2)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: C_ACCTBAL
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 114520
+                    stepCounter: "25212"
+                transform: ""
+          - columnReference:
+              columnCounter: 128345
+              stepCounter: "27260"
+            dataType: VARCHAR(10)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: C_MKTSEGMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 114521
+                    stepCounter: "25212"
+                transform: ""
+          - columnReference:
+              columnCounter: 128346
+              stepCounter: "27260"
+            dataType: VARCHAR(117)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: C_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 114522
+                    stepCounter: "25212"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_CUSTOMER4112
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_CUSTOMER4112') }} "STG_CUSTOMER4112"
+            name: STG_CUSTOMER41121
+            noLinkRefs: []
+      name: STG_CUSTOMER41121
+      overrideSQL: false
+      schema: ""
+      sqlType: Stage
+      type: sql
+    stepCounter: "27260"
