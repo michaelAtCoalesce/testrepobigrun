@@ -1,5 +1,5 @@
 steps:
-  STG_LINEITEM31-23838:
+  STG_LINEITEM31-27926:
     operation:
       config:
         insertStrategy: INSERT
@@ -20,50 +20,57 @@ steps:
         appliedNodeTests: []
         columns:
           - columnReference:
-              columnCounter: 105237
-              stepCounter: "23838"
+              columnCounter: 132886
+              stepCounter: "27926"
             dataType: NUMBER(38,0)
-            description: ""
+            description: Foreign Key to O_ORDERKEY
             hashColumns: []
             hashDetails: null
             name: L_ORDERKEY
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104805
-                    stepCounter: "23774"
+                  - columnCounter: 132768
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105238
-              stepCounter: "23838"
+              columnCounter: 132887
+              stepCounter: "27926"
             dataType: NUMBER(38,0)
-            description: ""
+            description: |-
+              Foreign key to P_PARTKEY, first part of the
+              compound Foreign Key to (PS_PARTKEY,
+              PS_SUPPKEY) with L_SUPPKEY
             hashColumns: []
             hashDetails: null
             name: L_PARTKEY
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104806
-                    stepCounter: "23774"
+                  - columnCounter: 132769
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105239
-              stepCounter: "23838"
+              columnCounter: 132888
+              stepCounter: "27926"
             dataType: NUMBER(38,0)
-            description: ""
+            description: |-
+              Foreign key to S_SUPPKEY, second part of the
+              compound Foreign Key to (PS_PARTKEY, 
+              TPC BenchmarkTM H Standard Specification Revision 2.17.1 Page 17
+              PS_SUPPKEY) with L_PARTKEY
             hashColumns: []
             hashDetails: null
             name: L_SUPPKEY
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104807
-                    stepCounter: "23774"
+                  - columnCounter: 132770
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105240
-              stepCounter: "23838"
+              columnCounter: 132889
+              stepCounter: "27926"
             dataType: NUMBER(38,0)
             description: ""
             hashColumns: []
@@ -72,12 +79,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104808
-                    stepCounter: "23774"
+                  - columnCounter: 132771
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105241
-              stepCounter: "23838"
+              columnCounter: 132890
+              stepCounter: "27926"
             dataType: NUMBER(12,2)
             description: ""
             hashColumns: []
@@ -86,12 +93,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104809
-                    stepCounter: "23774"
+                  - columnCounter: 132772
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105242
-              stepCounter: "23838"
+              columnCounter: 132891
+              stepCounter: "27926"
             dataType: NUMBER(12,2)
             description: ""
             hashColumns: []
@@ -100,12 +107,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104810
-                    stepCounter: "23774"
+                  - columnCounter: 132773
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105243
-              stepCounter: "23838"
+              columnCounter: 132892
+              stepCounter: "27926"
             dataType: NUMBER(12,2)
             description: ""
             hashColumns: []
@@ -114,12 +121,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104811
-                    stepCounter: "23774"
+                  - columnCounter: 132774
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105244
-              stepCounter: "23838"
+              columnCounter: 132893
+              stepCounter: "27926"
             dataType: NUMBER(12,2)
             description: ""
             hashColumns: []
@@ -128,12 +135,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104812
-                    stepCounter: "23774"
+                  - columnCounter: 132775
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105245
-              stepCounter: "23838"
+              columnCounter: 132894
+              stepCounter: "27926"
             dataType: VARCHAR(1)
             description: ""
             hashColumns: []
@@ -142,12 +149,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104813
-                    stepCounter: "23774"
+                  - columnCounter: 132776
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105246
-              stepCounter: "23838"
+              columnCounter: 132895
+              stepCounter: "27926"
             dataType: VARCHAR(1)
             description: ""
             hashColumns: []
@@ -156,12 +163,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104814
-                    stepCounter: "23774"
+                  - columnCounter: 132777
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105247
-              stepCounter: "23838"
+              columnCounter: 132896
+              stepCounter: "27926"
             dataType: DATE
             description: ""
             hashColumns: []
@@ -170,12 +177,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104815
-                    stepCounter: "23774"
+                  - columnCounter: 132778
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105248
-              stepCounter: "23838"
+              columnCounter: 132897
+              stepCounter: "27926"
             dataType: DATE
             description: ""
             hashColumns: []
@@ -184,12 +191,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104816
-                    stepCounter: "23774"
+                  - columnCounter: 132779
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105249
-              stepCounter: "23838"
+              columnCounter: 132898
+              stepCounter: "27926"
             dataType: DATE
             description: ""
             hashColumns: []
@@ -198,12 +205,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104817
-                    stepCounter: "23774"
+                  - columnCounter: 132780
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105250
-              stepCounter: "23838"
+              columnCounter: 132899
+              stepCounter: "27926"
             dataType: VARCHAR(25)
             description: ""
             hashColumns: []
@@ -212,12 +219,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104818
-                    stepCounter: "23774"
+                  - columnCounter: 132781
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105251
-              stepCounter: "23838"
+              columnCounter: 132900
+              stepCounter: "27926"
             dataType: VARCHAR(10)
             description: ""
             hashColumns: []
@@ -226,12 +233,12 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104819
-                    stepCounter: "23774"
+                  - columnCounter: 132782
+                    stepCounter: "27910"
                 transform: ""
           - columnReference:
-              columnCounter: 105252
-              stepCounter: "23838"
+              columnCounter: 132901
+              stepCounter: "27926"
             dataType: VARCHAR(44)
             description: ""
             hashColumns: []
@@ -240,8 +247,8 @@ steps:
             nullable: false
             sourceColumnReferences:
               - columnReferences:
-                  - columnCounter: 104820
-                    stepCounter: "23774"
+                  - columnCounter: 132783
+                    stepCounter: "27910"
                 transform: ""
         cteString: ""
         enabledColumnTestIDs: []
@@ -260,4 +267,4 @@ steps:
       schema: ""
       sqlType: Stage
       type: sql
-    stepCounter: "23838"
+    stepCounter: "27926"
