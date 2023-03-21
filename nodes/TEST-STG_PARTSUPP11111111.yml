@@ -1,0 +1,52 @@
+steps:
+  STG_PARTSUPP11111111-c312ae83-c87d-4a48-b762-89cf188b1923:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        truncateBefore: true
+      database: ""
+      dependencies: []
+      deployEnabled: true
+      description: ""
+      isDataVault: false
+      isMultisource: false
+      locationID: ""
+      locationName: TEST
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: 1ed1e38f-4775-4c6f-a3ea-727259cdb270
+              stepCounter: c312ae83-c87d-4a48-b762-89cf188b1923
+            dataType: NUMBER(12,2)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: PS_SUPPLYCOST
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 22886
+                    stepCounter: "21364"
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: TEST
+                nodeName: STG_PARTSUPP1111111
+            join:
+              joinCondition: FROM {{ ref('TEST', 'STG_PARTSUPP1111111') }} "STG_PARTSUPP1111111"
+            name: STG_PARTSUPP11111111
+            noLinkRefs: []
+      name: STG_PARTSUPP11111111
+      overrideSQL: false
+      schema: ""
+      sqlType: "2"
+      type: sql
+    stepCounter: c312ae83-c87d-4a48-b762-89cf188b1923
