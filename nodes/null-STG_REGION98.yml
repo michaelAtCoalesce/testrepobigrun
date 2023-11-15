@@ -1,0 +1,79 @@
+steps:
+  STG_REGION98-2727f24b-8689-4b63-8725-6f554c2b4cf9:
+    operation:
+      config:
+        insertStrategy: INSERT
+        postSQL: ""
+        preSQL: ""
+        testsEnabled: true
+        truncateBefore: true
+      database: ""
+      deployEnabled: true
+      description: ""
+      isMultisource: false
+      locationName: null
+      materializationType: table
+      metadata:
+        appliedNodeTests: []
+        columns:
+          - columnReference:
+              columnCounter: f5af82a8-a362-409f-9936-7db577694001
+              stepCounter: 2727f24b-8689-4b63-8725-6f554c2b4cf9
+            dataType: NUMBER(38,0)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: R_REGIONKEY
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 7344f0ce-0c1f-4c45-b283-847ce95b0ee5
+                    stepCounter: c83a44a2-832b-4456-9b66-2d03c609a253
+                transform: ""
+          - columnReference:
+              columnCounter: b9a884df-da49-401b-b0ef-a6da16b77da5
+              stepCounter: 2727f24b-8689-4b63-8725-6f554c2b4cf9
+            dataType: VARCHAR(25)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: R_NAME
+            nullable: false
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: a0f29616-2ef1-4446-b64c-1be1ec834bff
+                    stepCounter: c83a44a2-832b-4456-9b66-2d03c609a253
+                transform: ""
+          - columnReference:
+              columnCounter: f176deca-3ae7-4529-9ab8-fbd2a007b07a
+              stepCounter: 2727f24b-8689-4b63-8725-6f554c2b4cf9
+            dataType: VARCHAR(152)
+            description: ""
+            hashColumns: []
+            hashDetails: null
+            name: R_COMMENT
+            nullable: true
+            sourceColumnReferences:
+              - columnReferences:
+                  - columnCounter: 0696a0f1-3748-4ac1-ba6a-b2fcd398fd2d
+                    stepCounter: c83a44a2-832b-4456-9b66-2d03c609a253
+                transform: ""
+        cteString: ""
+        enabledColumnTestIDs: []
+        sourceMapping:
+          - aliases: {}
+            customSQL:
+              customSQL: ""
+            dependencies:
+              - locationName: null
+                nodeName: STG_REGION49
+            join:
+              joinCondition: FROM {{ ref('null', 'STG_REGION49') }} "STG_REGION49"
+            name: STG_REGION98
+            noLinkRefs: []
+      name: STG_REGION98
+      overrideSQL: false
+      schema: ""
+      sqlType: Stage
+      type: sql
+    stepCounter: 2727f24b-8689-4b63-8725-6f554c2b4cf9
