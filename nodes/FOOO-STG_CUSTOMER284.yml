@@ -21,7 +21,6 @@ steps:
               stepCounter: 21cfa7a6-151a-40cc-a41a-c80b3c89336c
             dataType: NUMBER(38,0)
             description: ""
-            hashColumns: []
             hashDetails: null
             name: C_CUSTKEY
             nullable: false
@@ -29,13 +28,12 @@ steps:
               - columnReferences:
                   - columnCounter: "15029"
                     stepCounter: "20335"
-                transform: ""
+                transform: "1"
           - columnReference:
               columnCounter: e7bf9f68-0df5-43c0-9940-3742b8b51e61
               stepCounter: 21cfa7a6-151a-40cc-a41a-c80b3c89336c
             dataType: VARCHAR(25)
             description: ""
-            hashColumns: []
             hashDetails: null
             name: C_NAME
             nullable: false
@@ -49,7 +47,6 @@ steps:
               stepCounter: 21cfa7a6-151a-40cc-a41a-c80b3c89336c
             dataType: VARCHAR(40)
             description: ""
-            hashColumns: []
             hashDetails: null
             name: C_ADDRESS
             nullable: false
@@ -63,7 +60,6 @@ steps:
               stepCounter: 21cfa7a6-151a-40cc-a41a-c80b3c89336c
             dataType: NUMBER(38,0)
             description: ""
-            hashColumns: []
             hashDetails: null
             name: C_NATIONKEY
             nullable: false
@@ -77,7 +73,6 @@ steps:
               stepCounter: 21cfa7a6-151a-40cc-a41a-c80b3c89336c
             dataType: VARCHAR(15)
             description: ""
-            hashColumns: []
             hashDetails: null
             name: C_PHONE
             nullable: false
@@ -91,7 +86,6 @@ steps:
               stepCounter: 21cfa7a6-151a-40cc-a41a-c80b3c89336c
             dataType: NUMBER(12,2)
             description: ""
-            hashColumns: []
             hashDetails: null
             name: C_ACCTBAL
             nullable: false
@@ -105,7 +99,6 @@ steps:
               stepCounter: 21cfa7a6-151a-40cc-a41a-c80b3c89336c
             dataType: VARCHAR(10)
             description: ""
-            hashColumns: []
             hashDetails: null
             name: C_MKTSEGMENT
             nullable: true
@@ -119,7 +112,6 @@ steps:
               stepCounter: 21cfa7a6-151a-40cc-a41a-c80b3c89336c
             dataType: VARCHAR(117)
             description: ""
-            hashColumns: []
             hashDetails: null
             name: C_COMMENT
             nullable: true
@@ -139,7 +131,7 @@ steps:
                 nodeName: CUSTOMER
             join:
               joinCondition: FROM {{ ref('SRC', 'CUSTOMER') }} "CUSTOMER"
-            name: STG_CUSTOMER
+            name: STG_CUSTOMER284
             noLinkRefs: []
       name: STG_CUSTOMER284
       overrideSQL: false
